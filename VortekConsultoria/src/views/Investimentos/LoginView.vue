@@ -26,7 +26,7 @@ export default {
       this.isTransitioning = true;
       setTimeout(() => {
         this.$router.push('/invest');
-      }, 1000); // Tempo da animação antes da transição
+      }, 1000);
     }
   }
 };

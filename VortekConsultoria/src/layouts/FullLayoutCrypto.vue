@@ -15,7 +15,7 @@ export default {
           <li>
             <RouterLink to="/invest">Home</RouterLink>
           </li>
-          <li>
+          <li class="logoff">
             <RouterLink to="/login">Logoff</RouterLink>
           </li>
         </ul>
@@ -67,4 +67,5 @@ a:hover {
 header {
   background-color: rgb(28, 91, 82);
 }
+
 </style>
