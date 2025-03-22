@@ -34,11 +34,7 @@ const router = createRouter({
       path: "/crypto",
       component: () => import("@/layouts/FullLayoutCrypto.vue"),
       children: [
-        {
-          path: "/login",
-          name: "login",
-          component: LoginView,
-        },
+        
         {
           path: "/invest",
           name: "invest",
@@ -48,6 +44,17 @@ const router = createRouter({
           path: "/logoff",
           name: "logoff",
           component: LogoffView,
+        },
+      ]
+    },
+    {
+      path:"/", 
+      component: () => import("@/layouts/BlankLayout.vue"),
+      children: [
+        {
+          path: "/login",
+          name: "login",
+          component: LoginView,
         },
       ]
     },

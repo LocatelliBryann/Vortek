@@ -16,7 +16,7 @@ export default {
             <RouterLink to="/invest">Home</RouterLink>
           </li>
           <li>
-            <RouterLink to="/logoff">Logoff</RouterLink>
+            <RouterLink to="/login">Logoff</RouterLink>
           </li>
         </ul>
       </div>

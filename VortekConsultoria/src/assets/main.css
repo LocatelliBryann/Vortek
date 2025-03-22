@@ -17,10 +17,10 @@ body {
   min-height: 100vh;
 }
 
-header {
+/* header {
   height: 80px;
   background:orangered;
-}
+} */
 
 .logo img {
   margin-left: 3%;
