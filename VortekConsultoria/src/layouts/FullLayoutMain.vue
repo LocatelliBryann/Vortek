@@ -8,9 +8,9 @@ export default {
   <div class="cabecalho"></div>
   <header>
     <div class="tudo">
-      <img src="@/assets/img/LogoConsultoria.png" alt="Logo Consultoria" class="logo" />
+      <a href="/"><img src="@/assets/img/LogoConsultoriaWhite.png" alt="Logo Consultoria" class="logo" /></a>
       <div class="menu">
-        
+
         <ul>
           <li>
             <RouterLink to="/">Home</RouterLink>
@@ -20,6 +20,12 @@ export default {
           </li>
           <li>
             <RouterLink to="/contate">Contato</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/producoes">Produções</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/login">Investimentos</RouterLink>
           </li>
         </ul>
       </div>
@@ -68,6 +74,6 @@ a:hover {
 }
 
 header {
-  background-color: orange;
+  background-color: rgb(9, 7, 3);
 }
 </style>
