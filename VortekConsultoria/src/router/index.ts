@@ -6,6 +6,7 @@ import LoginView from '../views/Investimentos/LoginView.vue'
 import MainViewCrypto from '../views/Investimentos/MainViewCrypto.vue'
 import LogoffView from '../views/Investimentos/LogoffView.vue'
 import DevView from '../views/DevPage.vue'
+import PerfilView from '../views/Investimentos/PerfilView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -50,6 +51,11 @@ const router = createRouter({
           path: "/dev",
           name: "dev",
           component: DevView,
+        },
+        {
+          path: "/perfil",
+          name: "perfil",
+          component: PerfilView,
         },
       ]
     },

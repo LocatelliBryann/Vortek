@@ -4,8 +4,11 @@
       <img src="@/assets/img/LogoInvestimentos.png" alt="Logo Vortek" class="logo" />
       <h2>Login</h2>
       <form @submit.prevent="login">
-        <input type="text" v-model="usuario" placeholder="Usuário" required />
+        <input type="email" v-model="email" placeholder="Email" required />
         <input type="password" v-model="senha" placeholder="Senha" required />
+        <div class="forgot-password">
+          <span @click="esqueciSenha" class="forgot-text">Esqueci minha senha</span>
+        </div>
         <button type="submit">Entrar</button>
       </form>
     </div>
@@ -13,10 +16,12 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
 export default {
   data() {
     return {
-      usuario: '',
+      email: '',
       senha: '',
       isTransitioning: false
     };
@@ -27,6 +32,23 @@ export default {
       setTimeout(() => {
         this.$router.push('/invest');
       }, 1000);
+    },
+    esqueciSenha() {
+      if (!this.email) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Você precisa informar um e-mail para redefinir a senha.',
+          confirmButtonText: 'OK'
+        });
+      } else {
+        Swal.fire({
+          icon: 'success',
+          title: 'Redefinição de senha',
+          text: 'O link para redefinição foi enviado para o seu e-mail.',
+          confirmButtonText: 'OK'
+        });
+      }
     }
   }
 };
@@ -131,5 +153,19 @@ button {
 
 button:hover {
   background-color: #164a40;
+}
+
+.forgot-password {
+  text-align: right;
+}
+
+.forgot-text {
+  font-size: 12px;
+  color: #28a745;
+  cursor: pointer;
+}
+
+.forgot-text:hover {
+  text-decoration: underline;
 }
 </style>

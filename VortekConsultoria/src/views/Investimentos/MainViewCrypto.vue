@@ -9,6 +9,7 @@
             <li><router-link to="/invest">Portfólio</router-link></li>
             <li><router-link to="/dev">Simular</router-link></li>
             <li><router-link to="/dev">P2P</router-link></li>
+            <li><router-link to="/perfil">Perfil</router-link></li>
           </ul>
         </nav>
       </aside>
