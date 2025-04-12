@@ -8,12 +8,11 @@ export default {
   <div class="cabecalho"></div>
   <header>
     <div class="tudo">
-      <a href="/"><img src="@/assets/img/LogoConsultoriaWhite.png" alt="Logo Consultoria" class="logo" /></a>
+      <a href="/home"><img src="@/assets/img/LogoConsultoriaWhite.png" alt="Logo Consultoria" class="logo" /></a>
       <div class="menu">
-
         <ul>
           <li>
-            <RouterLink to="/">Home</RouterLink>
+            <RouterLink to="/home">Home</RouterLink>
           </li>
           <li>
             <RouterLink to="/about">Sobre Nós</RouterLink>
@@ -22,10 +21,10 @@ export default {
             <RouterLink to="/contate">Contato</RouterLink>
           </li>
           <li>
-            <RouterLink to="/producoes">Produções</RouterLink>
+            <RouterLink to="/producoes" class="producoes-link">Produções</RouterLink>
           </li>
           <li>
-            <RouterLink to="/login">Investimentos</RouterLink>
+            <RouterLink to="/login" class="investimentos-link">Investimentos</RouterLink>
           </li>
         </ul>
       </div>
@@ -46,9 +45,9 @@ body {
 }
 
 .tudo {
-    display: flex;
-    align-items: left;
-    justify-content: left;
+  display: flex;
+  align-items: left;
+  justify-content: left;
 }
 
 ul {
@@ -75,5 +74,13 @@ a:hover {
 
 header {
   background-color: rgb(9, 7, 3);
+}
+
+:deep(.investimentos-link:hover) {
+  color: #1F7564FF !important;
+}
+
+:deep(.producoes-link:hover) {
+  color: rgb(185, 67, 185) !important;
 }
 </style>
