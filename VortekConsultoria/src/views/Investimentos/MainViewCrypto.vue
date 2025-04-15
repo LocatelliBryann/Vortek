@@ -33,16 +33,38 @@
             % Lucro: 0.00%
           </div>
         </section>
+        <section class="criptoativos-tabela">
+  <h2>Criptoativos Disponíveis</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Sigla</th>
+        <th>Nome</th>
+        <th>Valor (R$)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="cripto in criptoativos" :key="cripto.id">
+        <td>{{ cripto.cripto_sigla }}</td>
+        <td>{{ cripto.Criptoativo }}</td>
+        <td>R$ {{ parseFloat(cripto.valor).toFixed(2) }}</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
       </main>
     </div>
   </transition>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
-      menuOpen: false
+      menuOpen: false,
+      criptoativos: []
     };
   },
   methods: {
@@ -54,7 +76,18 @@ export default {
       if (this.menuOpen && !this.$refs.sidebar.contains(event.target)) {
         this.menuOpen = false;
       }
+    },
+    async buscarCriptoativos() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/criptoativos/');
+        this.criptoativos = response.data;
+      } catch (error) {
+        console.error("Erro ao buscar criptoativos:", error);
+      }
     }
+  },
+  mounted() {
+    this.buscarCriptoativos();
   }
 };
 </script>
@@ -149,4 +182,36 @@ nav li {
   width: 30px;
   height: 30px;
 }
+
+.criptoativos-tabela {
+  margin-top: 40px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.criptoativos-tabela h2 {
+  margin-bottom: 15px;
+}
+
+.criptoativos-tabela table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.criptoativos-tabela th,
+.criptoativos-tabela td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.criptoativos-tabela th {
+  background-color: #f4f4f4;
+}
+
 </style>

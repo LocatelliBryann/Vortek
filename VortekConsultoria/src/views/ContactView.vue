@@ -33,7 +33,7 @@ body {
 }
 
 .conteudo {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(217, 216, 216, 0.9);
   padding: 100px 200px;
   border-radius: 15px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
