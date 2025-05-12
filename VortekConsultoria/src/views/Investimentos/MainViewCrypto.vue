@@ -14,7 +14,7 @@
         </nav>
       </aside>
       <main class="content">
-        <h1>Bem-vindo(a) {username}</h1>
+        <h1>Bem-vindo(a) {{ username }}</h1>
         <section class="cards">
           <div class="card">
             <img src="@/assets/img/aportes.png" alt="Aportes"> Aportes: R$0.00
@@ -106,7 +106,8 @@ export default {
       dataAporte: '',
       valorAportado: '',
       quantidadeMoedas: '',
-      lastChangedField: ''
+      lastChangedField: '',
+      username: '',
     };
   },
   watch: {
@@ -185,11 +186,26 @@ export default {
     }
   },
   mounted() {
-    this.buscarCriptoativos();
-    this.buscarMoedasBinance();
-    const hoje = new Date().toISOString().split('T')[0];
-    this.dataAporte = hoje;
+  this.buscarCriptoativos();
+  this.buscarMoedasBinance();
+  const hoje = new Date().toISOString().split('T')[0];
+  this.dataAporte = hoje;
+
+  const token = localStorage.getItem("access");
+  if (token) {
+    axios.get("http://localhost:8000/api/user/", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    .then(response => {
+      this.username = response.data.username;
+    })
+    .catch(error => {
+      console.error("Erro ao obter usuário:", error);
+    });
   }
+}
 };
 </script>
 
@@ -279,6 +295,7 @@ nav li {
 }
 
 .criptoativos-tabela {
+  overflow-x: auto;
   margin-top: 40px;
   background: white;
   padding: 20px;

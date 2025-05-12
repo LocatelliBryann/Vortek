@@ -36,8 +36,11 @@ export default {
         });
 
         const { access, refresh } = response.data;
-        localStorage.setItem('access_token', access);
-        localStorage.setItem('refresh_token', refresh);
+
+        localStorage.setItem('access', access);
+        localStorage.setItem('refresh', refresh);
+
+        axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
 
         this.isTransitioning = true;
         setTimeout(() => {
@@ -69,9 +72,16 @@ export default {
         });
       }
     }
+  },
+  mounted() {
+    const accessToken = localStorage.getItem('access');
+    if (accessToken) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    }
   }
 };
 </script>
+
 
 <style scoped>
 body {
