@@ -4,7 +4,7 @@
       <img src="@/assets/img/LogoInvestimentos.png" alt="Logo Vortek" class="logo" />
       <h2>Login</h2>
       <form @submit.prevent="login">
-        <input type="email" v-model="email" placeholder="Email" required />
+        <input type="text" v-model="username" placeholder="Usuário" required />
         <input type="password" v-model="senha" placeholder="Senha" required />
         <div class="forgot-password">
           <span @click="esqueciSenha" class="forgot-text">Esqueci minha senha</span>
@@ -16,36 +16,55 @@
 </template>
 
 <script>
+import axios from 'axios';
 import Swal from 'sweetalert2';
 
 export default {
   data() {
     return {
-      email: '',
+      username: '',
       senha: '',
       isTransitioning: false
     };
   },
   methods: {
-    login() {
-      this.isTransitioning = true;
-      setTimeout(() => {
-        this.$router.push('/invest');
-      }, 1000);
+    async login() {
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/token/', {
+          username: this.username,
+          password: this.senha
+        });
+
+        const { access, refresh } = response.data;
+        localStorage.setItem('access_token', access);
+        localStorage.setItem('refresh_token', refresh);
+
+        this.isTransitioning = true;
+        setTimeout(() => {
+          this.$router.push('/invest');
+        }, 1000);
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao fazer login',
+          text: 'Usuário ou senha incorretos.',
+          confirmButtonText: 'OK'
+        });
+      }
     },
     esqueciSenha() {
-      if (!this.email) {
+      if (!this.username) {
         Swal.fire({
           icon: 'error',
           title: 'Erro',
-          text: 'Você precisa informar um e-mail para redefinir a senha.',
+          text: 'Você precisa informar o nome de usuário para redefinir a senha.',
           confirmButtonText: 'OK'
         });
       } else {
         Swal.fire({
           icon: 'success',
           title: 'Redefinição de senha',
-          text: 'O link para redefinição foi enviado para o seu e-mail.',
+          text: 'O link para redefinição foi enviado para o seu e-mail (simulado).',
           confirmButtonText: 'OK'
         });
       }
