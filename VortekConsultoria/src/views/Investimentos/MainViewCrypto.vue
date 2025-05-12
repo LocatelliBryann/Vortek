@@ -5,7 +5,7 @@
       <aside class="sidebar" v-show="menuOpen" ref="sidebar">
         <nav>
           <ul>
-            <li><router-link to="/dev">Mercados</router-link></li>
+            <li><router-link to="/markets">Mercados</router-link></li>
             <li><router-link to="/invest">Portfólio</router-link></li>
             <li><router-link to="/dev">Simular</router-link></li>
             <li><router-link to="/dev">P2P</router-link></li>
@@ -30,16 +30,21 @@
           </div>
         </section>
 
-        <button class="btn-aporte" @click="mostrarModal = true">+ Aporte</button>
+        <button class="btn-aporte" @click="mostrarModal = true">Novo Aporte</button>
 
         <section class="criptoativos-tabela">
           <h2>Criptoativos Disponíveis</h2>
           <table>
             <thead>
               <tr>
-                <th>Sigla</th>
+                <!-- <th>Sigla</th> -->
                 <th>Nome</th>
-                <th>Valor (R$)</th>
+                <th>Saldo</th>
+                <th>Preço Atual (R$)</th>
+                <th>Quantidade</th>
+                <th>Valor Aportado (R$)</th>
+                <th>Lucro</th>
+                <th>% Lucro</th>
               </tr>
             </thead>
             <tbody>
@@ -60,12 +65,12 @@
             <select v-model="moedaSelecionada" @change="buscarPrecoMoeda">
               <option disabled value="">Selecione uma moeda</option>
               <option v-for="moeda in moedasBinance" :key="moeda.symbol" :value="moeda">
-                <img :src="`https://cryptoicon-api.pages.dev/api/icon/${moeda.symbol.toLowerCase()}`" style="width: 16px; margin-right: 5px;">
+                <!-- <img :src="`https://cryptoicon-api.pages.dev/api/icon/${moeda.symbol.toLowerCase()}`" style="width: 16px; margin-right: 5px;"> -->
                 {{ moeda.baseAsset }} - {{ moeda.symbol }}
               </option>
             </select>
 
-            <label>Preço da moeda</label>
+            <label>Preço da moeda (R$)</label>
             <input type="text" v-model="precoMoeda" readonly>
 
             <label>Data do Aporte</label>
@@ -170,7 +175,6 @@ export default {
       }
     },
     salvarAporte() {
-      // Aqui entraria a lógica para realmente salvar o aporte na API
       Swal.fire({
         icon: 'success',
         title: 'Aporte salvo com sucesso!',
@@ -279,7 +283,7 @@ nav li {
   background: white;
   padding: 20px;
   border-radius: 10px;
-  max-width: 600px;
+  max-width: 950px;
   margin-left: auto;
   margin-right: auto;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);

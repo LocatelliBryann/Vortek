@@ -7,6 +7,7 @@ import MainViewCrypto from '../views/Investimentos/MainViewCrypto.vue'
 import LogoffView from '../views/Investimentos/LogoffView.vue'
 import DevView from '../views/DevPage.vue'
 import PerfilView from '../views/Investimentos/PerfilView.vue'
+import MarketsViewCrypto from '../views/Investimentos/MarketsViewCrypto.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -56,6 +57,11 @@ const router = createRouter({
           path: "/perfil",
           name: "perfil",
           component: PerfilView,
+        },
+        {
+          path: "/markets",
+          name: "Markets",
+          component: MarketsViewCrypto,
         },
       ]
     },
