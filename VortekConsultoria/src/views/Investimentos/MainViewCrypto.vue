@@ -14,7 +14,7 @@
         </nav>
       </aside>
       <main class="content">
-        <h1>Bem-vindo(a) {{ username }}</h1>
+        <h1>Bem-vindo(a) {{ nome_completo }}</h1>
         <section class="cards">
           <div class="card">
             <img src="@/assets/img/aportes.png" alt="Aportes"> Aportes: R$0.00
@@ -40,7 +40,7 @@
                 <!-- <th>Sigla</th> -->
                 <th>Nome</th>
                 <th>Saldo</th>
-                <th>Preço Atual (R$)</th>
+                <th>Preço Atual (USD)</th>
                 <th>Quantidade</th>
                 <th>Valor Aportado (R$)</th>
                 <th>Lucro</th>
@@ -108,6 +108,7 @@ export default {
       quantidadeMoedas: '',
       lastChangedField: '',
       username: '',
+      nome_completo: '',
     };
   },
   watch: {
@@ -200,6 +201,7 @@ export default {
     })
     .then(response => {
       this.username = response.data.username;
+      this.nome_completo = response.data.nome_completo;
     })
     .catch(error => {
       console.error("Erro ao obter usuário:", error);

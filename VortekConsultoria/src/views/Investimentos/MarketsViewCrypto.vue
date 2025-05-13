@@ -118,19 +118,22 @@ export default {
       }
     },
     async buscarDadosMercado() {
-      try {
-        const response = await axios.get('https://api.binance.com/api/v3/ticker/24hr');
-        const filtradas = response.data.filter(m =>
-          m.symbol.endsWith('USDT') &&
-          !isNaN(parseFloat(m.lastPrice)) &&
-          parseFloat(m.lastPrice) >= 0.000001
-        );
-        this.moedas = [...filtradas];
-        this.moedasOriginais = [...filtradas]; // Salvar ordem original
-      } catch (error) {
-        console.error('Erro ao buscar dados de mercado:', error);
-      }
-    }
+  try {
+    const response = await axios.get('https://api.binance.com/api/v3/ticker/24hr');
+    console.log(response.data); // Verifique os dados retornados
+
+    const filtradas = response.data.filter(m =>
+      m.symbol.endsWith('USDT') &&
+      !isNaN(parseFloat(m.lastPrice)) &&
+      parseFloat(m.lastPrice) >= 0.000001
+    );
+    this.moedas = [...filtradas];
+    this.moedasOriginais = [...filtradas]; // Salvar ordem original
+  } catch (error) {
+    console.error('Erro ao buscar dados de mercado:', error);
+  }
+}
+
   },
   mounted() {
     this.buscarDadosMercado();
