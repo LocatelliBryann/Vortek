@@ -32,12 +32,12 @@
 
         <button class="btn-aporte" @click="mostrarModal = true">Novo Aporte</button>
 
-        <section class="criptoativos-tabela">
+        <section class="criptoativos-tabela" v-if="criptoativos.length">
           <h2>Criptoativos Disponíveis</h2>
           <table>
             <thead>
               <tr>
-                <!-- <th>Sigla</th> -->
+                <th>Sigla</th>
                 <th>Nome</th>
                 <th>Saldo</th>
                 <th>Preço Atual (USD)</th>
@@ -65,7 +65,6 @@
             <select v-model="moedaSelecionada" @change="buscarPrecoMoeda">
               <option disabled value="">Selecione uma moeda</option>
               <option v-for="moeda in moedasBinance" :key="moeda.symbol" :value="moeda">
-                <!-- <img :src="`https://cryptoicon-api.pages.dev/api/icon/${moeda.symbol.toLowerCase()}`" style="width: 16px; margin-right: 5px;"> -->
                 {{ moeda.baseAsset }} - {{ moeda.symbol }}
               </option>
             </select>
@@ -101,7 +100,7 @@ export default {
       mostrarModal: false,
       criptoativos: [],
       moedasBinance: [],
-      moedaSelecionada: '',
+      moedaSelecionada: null,
       precoMoeda: '',
       dataAporte: '',
       valorAportado: '',
@@ -147,35 +146,45 @@ export default {
       this.menuOpen = !this.menuOpen;
     },
     handleClickOutside(event) {
-      if (this.menuOpen && !this.$refs.sidebar.contains(event.target)) {
+      if (this.menuOpen && this.$refs.sidebar && !this.$refs.sidebar.contains(event.target)) {
         this.menuOpen = false;
       }
     },
     async buscarCriptoativos() {
       try {
         const response = await axios.get('http://localhost:8000/api/criptoativos/');
-        this.criptoativos = response.data;
+        if (response && response.data) {
+          this.criptoativos = response.data;
+        } else {
+          this.criptoativos = [];
+        }
       } catch (error) {
         console.error("Erro ao buscar criptoativos:", error);
+        this.criptoativos = [];
       }
     },
     async buscarMoedasBinance() {
       try {
         const response = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
-        this.moedasBinance = response.data.symbols.filter(m => m.quoteAsset === 'USDT');
+        if (response && response.data && response.data.symbols) {
+          this.moedasBinance = response.data.symbols.filter(m => m.quoteAsset === 'USDT');
+        } else {
+          this.moedasBinance = [];
+        }
       } catch (error) {
         console.error("Erro ao buscar moedas da Binance:", error);
+        this.moedasBinance = [];
       }
     },
     async buscarPrecoMoeda() {
-      if (!this.moedaSelecionada) return;
-      try {
-        const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${this.moedaSelecionada.symbol}`);
-        this.precoMoeda = parseFloat(response.data.price).toFixed(10);
-      } catch (error) {
-        console.error("Erro ao buscar preço da moeda:", error);
-      }
-    },
+  if (!this.moedaSelecionada || !this.moedaSelecionada.symbol) return
+  try {
+    const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${this.moedaSelecionada.symbol}`)
+    this.precoMoeda = parseFloat(response.data.price).toFixed(8)
+  } catch (error) {
+    console.error('Erro ao buscar preço da moeda:', error)
+  }
+},
     salvarAporte() {
       Swal.fire({
         icon: 'success',
@@ -186,28 +195,25 @@ export default {
       this.mostrarModal = false;
     }
   },
-  mounted() {
-  this.buscarCriptoativos();
-  this.buscarMoedasBinance();
-  const hoje = new Date().toISOString().split('T')[0];
-  this.dataAporte = hoje;
+  async mounted() {
+    await this.buscarCriptoativos();
+    await this.buscarMoedasBinance();
+    const hoje = new Date().toISOString().split('T')[0];
+    this.dataAporte = hoje;
 
-  const token = localStorage.getItem("access");
-  if (token) {
-    axios.get("http://localhost:8000/api/user/", {
-      headers: {
-        Authorization: `Bearer ${token}`
+    const token = localStorage.getItem("access");
+    if (token) {
+      try {
+        const response = await axios.get("http://localhost:8000/api/user/", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        this.username = response.data.username;
+        this.nome_completo = response.data.nome_completo;
+      } catch (error) {
+        console.error("Erro ao obter usuário:", error);
       }
-    })
-    .then(response => {
-      this.username = response.data.username;
-      this.nome_completo = response.data.nome_completo;
-    })
-    .catch(error => {
-      console.error("Erro ao obter usuário:", error);
-    });
+    }
   }
-}
 };
 </script>
 
