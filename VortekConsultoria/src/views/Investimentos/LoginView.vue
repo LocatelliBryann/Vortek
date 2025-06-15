@@ -54,6 +54,7 @@ export default {
         });
       }
     },
+
     async esqueciSenha() {
       if (!this.email) {
         Swal.fire({
@@ -84,12 +85,59 @@ export default {
           confirmButtonText: 'OK'
         });
       }
+    },
+
+    async redefinirSenha(uid, token) {
+      const { value: senha } = await Swal.fire({
+        title: 'Nova senha',
+        input: 'password',
+        inputLabel: 'Digite a nova senha',
+        inputPlaceholder: 'Nova senha',
+        inputAttributes: {
+          minlength: 6,
+          required: true
+        },
+        confirmButtonText: 'Redefinir',
+        showCancelButton: true
+      });
+
+      if (!senha) return;
+
+      try {
+        await axios.post(`http://127.0.0.1:8000/reset/${uid}/${token}/`, {
+          nova_senha: senha
+        });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Sucesso',
+          text: 'Senha redefinida com sucesso!',
+          confirmButtonText: 'OK'
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'O link pode ter expirado ou já foi usado.',
+          confirmButtonText: 'OK'
+        });
+      }
     }
   },
+
   mounted() {
     const accessToken = localStorage.getItem('access');
     if (accessToken) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    // Verifica se há uid e token na URL para redefinir senha
+    const query = new URLSearchParams(window.location.search);
+    const uid = query.get('uid');
+    const token = query.get('token');
+
+    if (uid && token) {
+      this.redefinirSenha(uid, token);
     }
   }
 };

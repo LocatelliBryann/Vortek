@@ -13,50 +13,65 @@
           </ul>
         </nav>
       </aside>
+
       <main class="content">
         <h1>Bem-vindo(a) {{ nome_completo }}</h1>
+
         <section class="cards">
           <div class="card">
-            <img src="@/assets/img/aportes.png" alt="Aportes"> Aportes: R$0.00
+            <img src="@/assets/img/aportes.png" alt="Aportes" />
+            Aportes: R$ {{ totalAportes.toFixed(2) }}
           </div>
           <div class="card">
-            <img src="@/assets/img/saldo.png" alt="Saldo"> Saldo: R$0.00
+            <img src="@/assets/img/saldo.png" alt="Saldo" />
+            Saldo: R$ {{ totalSaldo.toFixed(2) }}
           </div>
           <div class="card">
-            <img src="@/assets/img/lucro.png" alt="Lucro"> Lucro: R$0.00
+            <img src="@/assets/img/lucro.png" alt="Lucro" />
+            Lucro: R$ {{ totalLucro.toFixed(2) }}
           </div>
           <div class="card">
-            <img src="@/assets/img/percent.png" alt="Porcentagem Lucro"> % Lucro: 0.00%
+            <img src="@/assets/img/percent.png" alt="Porcentagem Lucro" />
+            % Lucro: {{ totalPercentual.toFixed(2) }}%
           </div>
         </section>
 
-        <button class="btn-aporte" @click="mostrarModal = true">Novo Aporte</button>
+        <button class="btn-aporte" @click="abrirModalNovoAporte">Novo Aporte</button>
 
         <section class="criptoativos-tabela">
-          <h2>Criptoativos Disponíveis</h2>
+          <h2>Criptoativos Adquiridos</h2>
           <table>
             <thead>
               <tr>
-                <!-- <th>Sigla</th> -->
                 <th>Nome</th>
-                <th>Saldo</th>
-                <th>Preço Atual (USD)</th>
+                <th>Saldo (R$)</th>
+                <th>Preço Atual (R$)</th>
                 <th>Quantidade</th>
                 <th>Valor Aportado (R$)</th>
                 <th>Lucro</th>
                 <th>% Lucro</th>
+                <th>Data do Aporte</th>
               </tr>
             </thead>
             <tbody>
+              <tr v-if="criptoativos.length === 0">
+                <td colspan="8">Nenhum aporte encontrado</td>
+              </tr>
               <tr v-for="cripto in criptoativos" :key="cripto.id">
-                <td>{{ cripto.cripto_sigla }}</td>
-                <td>{{ cripto.Criptoativo }}</td>
-                <td>R$ {{ parseFloat(cripto.valor).toFixed(2) }}</td>
+                <td>{{ cripto.sigla }}</td>
+                <td>R$ {{ cripto.valorAtual.toFixed(2) }}</td>
+                <td>R$ {{ cripto.preco.toFixed(2) }}</td>
+                <td>{{ cripto.quantidade.toFixed(5) }}</td>
+                <td>R$ {{ cripto.valorAportado.toFixed(2) }}</td>
+                <td>R$ {{ cripto.lucro.toFixed(2) }}</td>
+                <td>{{ cripto.percentual.toFixed(2) }}%</td>
+                <td>{{ formatarData(cripto.dataAporte) }}</td>
               </tr>
             </tbody>
           </table>
         </section>
 
+        <!-- MODAL DE NOVO APORTE -->
         <div v-if="mostrarModal" class="modal-overlay" @click.self="mostrarModal = false">
           <div class="modal-content">
             <h2>Novo Aporte</h2>
@@ -64,9 +79,8 @@
             <label>Moeda</label>
             <select v-model="moedaSelecionada" @change="buscarPrecoMoeda">
               <option disabled value="">Selecione uma moeda</option>
-              <option v-for="moeda in moedasBinance" :key="moeda.symbol" :value="moeda">
-                <!-- <img :src="`https://cryptoicon-api.pages.dev/api/icon/${moeda.symbol.toLowerCase()}`" style="width: 16px; margin-right: 5px;"> -->
-                {{ moeda.baseAsset }} - {{ moeda.symbol }}
+              <option v-for="moeda in criptoativosBanco" :key="moeda.id" :value="moeda">
+                {{ moeda.cripto_sigla }} - {{ moeda.Criptoativo }}
               </option>
             </select>
 
@@ -91,8 +105,8 @@
 </template>
 
 <script>
-import axios from 'axios';
-import Swal from 'sweetalert2';
+import axios from "axios";
+import Swal from "sweetalert2";
 
 export default {
   data() {
@@ -100,48 +114,47 @@ export default {
       menuOpen: false,
       mostrarModal: false,
       criptoativos: [],
-      moedasBinance: [],
-      moedaSelecionada: '',
-      precoMoeda: '',
-      dataAporte: '',
-      valorAportado: '',
-      quantidadeMoedas: '',
-      lastChangedField: '',
-      username: '',
-      nome_completo: '',
+      criptoativosBanco: [],
+      moedaSelecionada: "",
+      precoMoeda: "",
+      dataAporte: "",
+      valorAportado: "",
+      quantidadeMoedas: "",
+      lastChangedField: "",
+      nome_completo: "",
+      totalAportes: 0,
+      totalSaldo: 0,
+      totalLucro: 0,
+      totalPercentual: 0,
     };
   },
   watch: {
     valorAportado(newValue) {
-      if (this.lastChangedField === 'quantidade') return;
+      if (this.lastChangedField === "quantidade") return;
       if (!this.precoMoeda || parseFloat(this.precoMoeda) === 0) return;
-
-      this.lastChangedField = 'valor';
+      this.lastChangedField = "valor";
       const valor = parseFloat(newValue);
       const preco = parseFloat(this.precoMoeda);
-
-      if (!isNaN(valor) && !isNaN(preco)) {
-        this.quantidadeMoedas = (valor / preco).toFixed(5);
-      } else {
-        this.quantidadeMoedas = '';
-      }
+      this.quantidadeMoedas = (!isNaN(valor) && !isNaN(preco)) ? (valor / preco).toFixed(5) : "";
     },
     quantidadeMoedas(newValue) {
-      if (this.lastChangedField === 'valor') return;
+      if (this.lastChangedField === "valor") return;
       if (!this.precoMoeda || parseFloat(this.precoMoeda) === 0) return;
-
-      this.lastChangedField = 'quantidade';
+      this.lastChangedField = "quantidade";
       const quantidade = parseFloat(newValue);
       const preco = parseFloat(this.precoMoeda);
-
-      if (!isNaN(quantidade) && !isNaN(preco)) {
-        this.valorAportado = (quantidade * preco).toFixed(2);
-      } else {
-        this.valorAportado = '';
-      }
-    }
+      this.valorAportado = (!isNaN(quantidade) && !isNaN(preco)) ? (quantidade * preco).toFixed(2) : "";
+    },
   },
   methods: {
+    abrirModalNovoAporte() {
+      this.dataAporte = new Date().toISOString().split("T")[0];
+      this.moedaSelecionada = "";
+      this.precoMoeda = "";
+      this.valorAportado = "";
+      this.quantidadeMoedas = "";
+      this.mostrarModal = true;
+    },
     toggleMenu(event) {
       event.stopPropagation();
       this.menuOpen = !this.menuOpen;
@@ -151,65 +164,144 @@ export default {
         this.menuOpen = false;
       }
     },
-    async buscarCriptoativos() {
+    async buscarUsuario() {
+      const token = localStorage.getItem("access");
+      if (!token) return;
       try {
-        const response = await axios.get('http://localhost:8000/api/criptoativos/');
-        this.criptoativos = response.data;
+        const response = await axios.get("http://localhost:8000/api/user/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.nome_completo = response.data.nome_completo;
       } catch (error) {
-        console.error("Erro ao buscar criptoativos:", error);
+        console.error("Erro ao obter usuário:", error);
       }
     },
-    async buscarMoedasBinance() {
+    async buscarCriptoativosBanco() {
       try {
-        const response = await axios.get('https://api.binance.com/api/v3/exchangeInfo');
-        this.moedasBinance = response.data.symbols.filter(m => m.quoteAsset === 'USDT');
+        const response = await axios.get("http://localhost:8000/api/criptoativos/");
+        this.criptoativosBanco = response.data || [];
       } catch (error) {
-        console.error("Erro ao buscar moedas da Binance:", error);
+        console.error("Erro ao buscar ativos do banco:", error);
+        this.criptoativosBanco = [];
       }
     },
     async buscarPrecoMoeda() {
       if (!this.moedaSelecionada) return;
       try {
-        const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${this.moedaSelecionada.symbol}`);
+        // Ajuste: você pode pegar o preço direto da Binance ou criar uma rota proxy no backend para contornar CORS.
+        const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${this.moedaSelecionada.cripto_sigla.toUpperCase()}BRL`);
         this.precoMoeda = parseFloat(response.data.price).toFixed(10);
       } catch (error) {
-        console.error("Erro ao buscar preço da moeda:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Preço não encontrado",
+          text: "Não foi possível obter o preço do ativo em tempo real. Verifique se o ativo existe na Binance com par BRL."
+        });
+        this.precoMoeda = "";
       }
     },
-    salvarAporte() {
-      Swal.fire({
-        icon: 'success',
-        title: 'Aporte salvo com sucesso!',
-        showConfirmButton: false,
-        timer: 2000
-      });
-      this.mostrarModal = false;
-    }
-  },
-  mounted() {
-  this.buscarCriptoativos();
-  this.buscarMoedasBinance();
-  const hoje = new Date().toISOString().split('T')[0];
-  this.dataAporte = hoje;
-
-  const token = localStorage.getItem("access");
-  if (token) {
-    axios.get("http://localhost:8000/api/user/", {
-      headers: {
-        Authorization: `Bearer ${token}`
+    async salvarAporte() {
+      const token = localStorage.getItem("access");
+      if (!token || !this.moedaSelecionada) return;
+      try {
+        const payload = {
+          criptoativo: this.moedaSelecionada.id,
+          valor_aportado: parseFloat(this.valorAportado),
+          quantidade: parseFloat(this.quantidadeMoedas),
+          data_aporte: this.dataAporte,
+        };
+        await axios.post("http://localhost:8000/api/aportes/", payload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        Swal.fire({ icon: "success", title: "Aporte salvo!", timer: 2000 });
+        this.mostrarModal = false;
+        await this.buscarCriptoativos();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Erro ao salvar aporte",
+          text: error.response?.data?.detail || "Verifique os dados ou tente novamente.",
+        });
       }
-    })
-    .then(response => {
-      this.username = response.data.username;
-      this.nome_completo = response.data.nome_completo;
-    })
-    .catch(error => {
-      console.error("Erro ao obter usuário:", error);
-    });
-  }
-}
+    },
+    async buscarCriptoativos() {
+      try {
+        const token = localStorage.getItem("access");
+        const response = await axios.get("http://localhost:8000/api/aportes/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Proteção caso response.data venha vazio ou sem criptoativo
+        const aportes = Array.isArray(response.data) ? response.data.filter(
+          aporte => aporte.criptoativo && aporte.criptoativo.cripto_sigla
+        ) : [];
+
+        // Puxa cotação do dólar (se quiser usar par USDT, se não, retire essas duas linhas)
+        // const cotacaoResponse = await axios.get("https://economia.awesomeapi.com.br/json/last/USD-BRL");
+        // const cotacaoUSD_BRL = parseFloat(cotacaoResponse.data.USDBRL.ask);
+
+        const promises = aportes.map(async (aporte) => {
+          // Pega o preço do ativo em BRL
+          let precoAtual = 0;
+          try {
+            const precoResponse = await axios.get(
+              `https://api.binance.com/api/v3/ticker/price?symbol=${aporte.criptoativo.cripto_sigla.toUpperCase()}BRL`
+            );
+            precoAtual = parseFloat(precoResponse.data.price);
+          } catch {
+            precoAtual = parseFloat(aporte.criptoativo.valor);
+          }
+
+          const quantidade = parseFloat(aporte.quantidade);
+          const valorAportado = parseFloat(aporte.valor_aportado);
+          const valorAtual = quantidade * precoAtual;
+          const lucro = valorAtual - valorAportado;
+          const percentual = valorAportado > 0 ? (lucro / valorAportado) * 100 : 0;
+
+          return {
+            id: aporte.id,
+            nome: aporte.criptoativo.Criptoativo,
+            sigla: aporte.criptoativo.cripto_sigla,
+            preco: precoAtual,
+            quantidade,
+            valorAportado,
+            valorAtual,
+            lucro,
+            percentual,
+            dataAporte: aporte.data_aporte,
+          };
+        });
+
+        this.criptoativos = await Promise.all(promises);
+        console.log('Aportes processados:', this.criptoativos);
+        this.totalAportes = this.criptoativos.reduce((acc, c) => acc + c.valorAportado, 0);
+        this.totalSaldo = this.criptoativos.reduce((acc, c) => acc + c.valorAtual, 0);
+        this.totalLucro = this.totalSaldo - this.totalAportes;
+        this.totalPercentual = this.totalAportes > 0 ? (this.totalLucro / this.totalAportes) * 100 : 0;
+      } catch (error) {
+        // Evita quebrar a tela se der erro
+        this.criptoativos = [];
+        this.totalAportes = 0;
+        this.totalSaldo = 0;
+        this.totalLucro = 0;
+        this.totalPercentual = 0;
+        console.error("Erro ao buscar criptoativos:", error);
+      }
+    },
+    formatarData(dataISO) {
+      if (!dataISO) return "";
+      const [ano, mes, dia] = dataISO.split("-");
+      return `${dia}/${mes}/${ano}`;
+    },
+  },
+  async mounted() {
+    await this.buscarUsuario();
+    await this.buscarCriptoativosBanco();
+    await this.buscarCriptoativos();
+  },
 };
 </script>
+
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
