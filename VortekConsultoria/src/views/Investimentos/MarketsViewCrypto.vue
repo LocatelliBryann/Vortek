@@ -81,7 +81,7 @@ export default {
     moedasFiltradas() {
       let lista = [...this.moedas];
 
-      // Filtro por nome
+      // Filtro por nome (incluindo USDT)
       lista = lista.filter(m =>
         m.symbol.toLowerCase().includes('usdt') &&
         m.symbol.toLowerCase().includes(this.search.toLowerCase())
@@ -118,22 +118,21 @@ export default {
       }
     },
     async buscarDadosMercado() {
-  try {
-    const response = await axios.get('https://api.binance.com/api/v3/ticker/24hr');
-    console.log(response.data); // Verifique os dados retornados
+      try {
+        const response = await axios.get('https://api.binance.com/api/v3/ticker/24hr');
+        if (!response || !response.data) throw new Error('Resposta inválida da API');
 
-    const filtradas = response.data.filter(m =>
-      m.symbol.endsWith('USDT') &&
-      !isNaN(parseFloat(m.lastPrice)) &&
-      parseFloat(m.lastPrice) >= 0.000001
-    );
-    this.moedas = [...filtradas];
-    this.moedasOriginais = [...filtradas]; // Salvar ordem original
-  } catch (error) {
-    console.error('Erro ao buscar dados de mercado:', error);
-  }
-}
-
+        const filtradas = response.data.filter(m =>
+          m.symbol.endsWith('USDT') &&
+          !isNaN(parseFloat(m.lastPrice)) &&
+          parseFloat(m.lastPrice) >= 0.000001
+        );
+        this.moedas = [...filtradas];
+        this.moedasOriginais = [...filtradas]; // Salvar ordem original
+      } catch (error) {
+        console.error('Erro ao buscar dados de mercado:', error);
+      }
+    }
   },
   mounted() {
     this.buscarDadosMercado();
