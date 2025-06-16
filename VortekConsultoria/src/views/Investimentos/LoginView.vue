@@ -131,7 +131,6 @@ export default {
       axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    // Verifica se há uid e token na URL para redefinir senha
     const query = new URLSearchParams(window.location.search);
     const uid = query.get('uid');
     const token = query.get('token');

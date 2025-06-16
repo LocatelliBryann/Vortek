@@ -4,7 +4,6 @@ import AboutView from '../views/AboutView.vue'
 import ContateView from '../views/ContactView.vue'
 import LoginView from '../views/Investimentos/LoginView.vue'
 import MainViewCrypto from '../views/Investimentos/MainViewCrypto.vue'
-// import LogoffView from '../views/Investimentos/LogoffView.vue'
 import DevView from '../views/DevPage.vue'
 import PerfilView from '../views/Investimentos/PerfilView.vue'
 import MarketsViewCrypto from '../views/Investimentos/MarketsViewCrypto.vue'
@@ -74,7 +73,6 @@ const router = createRouter({
         },
       ]
     },
-    // Redireciona qualquer rota desconhecida para login
     {
       path: "/:pathMatch(.*)*",
       redirect: "/login",
@@ -82,7 +80,6 @@ const router = createRouter({
   ],
 })
 
-// Navigation Guard para proteção de rotas
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('access');
   const isAuthenticated = !!token;

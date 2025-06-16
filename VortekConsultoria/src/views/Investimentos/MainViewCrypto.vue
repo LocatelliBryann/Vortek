@@ -83,7 +83,6 @@
           </table>
         </section>
 
-        <!-- MODAL DE NOVO APORTE -->
         <div v-if="mostrarModal" class="modal-overlay" @click.self="mostrarModal = false">
           <div class="modal-content">
             <h2>Novo Aporte</h2>
@@ -95,7 +94,6 @@
               </option>
             </select>
             <label>Preço da moeda (R$)</label>
-            <!-- Agora é EDITÁVEL -->
             <input type="number" step="any" v-model="precoMoeda" @input="aoAlterarPrecoMoeda" placeholder="Preço em reais">
             <label>Data do Aporte</label>
             <input type="date" v-model="dataAporte">
@@ -197,10 +195,9 @@ export default {
       try {
         const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${this.moedaSelecionada.cripto_sigla.toUpperCase()}BRL`);
         this.precoMoeda = parseFloat(response.data.price).toFixed(10);
-        // ao atualizar o preço pelo Binance, dispara o watcher caso valor_aportado esteja preenchido
-        this.lastChangedField = ""; // limpa pra calcular certo ao trocar moeda
+        this.lastChangedField = "";
         if (this.valorAportado) {
-          this.valorAportado = this.valorAportado; // força watcher rodar
+          this.valorAportado = this.valorAportado;
         }
       } catch (error) {
         Swal.fire({
@@ -212,10 +209,9 @@ export default {
       }
     },
     aoAlterarPrecoMoeda() {
-      // ao editar manualmente, atualiza os outros campos de acordo
-      this.lastChangedField = ""; // limpa, deixa o watcher recalcular
+      this.lastChangedField = "";
       if (this.valorAportado) {
-        this.valorAportado = this.valorAportado; // força o watcher recalcular a quantidade
+        this.valorAportado = this.valorAportado;
       }
     },
     async salvarAporte() {
@@ -525,7 +521,7 @@ nav li {
   margin: 0;
   font-size: 20px;
   cursor: pointer;
-  color: #e74c3c; /* Vermelho padrão */
+  color: #e74c3c;
   transition: color 0.2s, transform 0.1s;
   vertical-align: middle;
   display: flex;
@@ -533,11 +529,10 @@ nav li {
   justify-content: center;
 }
 .btn-deletar:hover {
-  color: #2980ff; /* Azul vivo ao passar o mouse */
+  color: #2980ff;
   transform: scale(1.12);
 }
 
-/* SweetAlert custom btn (opcional, deixa botões alinhados com seu tema) */
 .swal2-styled.btn-swal-confirm {
   background: #e74c3c !important;
   color: #fff !important;

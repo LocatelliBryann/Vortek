@@ -133,24 +133,17 @@ export default {
   },
   mounted() {
     this.buscarDadosMercado();
-    // Também roda na primeira montagem, mas não é suficiente sozinho!
   },
   setup() {
     const route = useRoute();
-    // Observe mudanças na rota para sempre buscar ao entrar em /markets
     watch(
       () => route.fullPath,
       (to) => {
         if (to === '/markets') {
-          // "this" não existe no setup, use window.$vueRef ou eventos globais se precisar,
-          // mas neste caso pode simplesmente disparar no componente usando beforeRouteEnter.
-          // Alternativamente, pode-se usar um event bus.
-          // Como estamos em Options API, o ideal é usar beforeRouteUpdate:
         }
       }
     );
   },
-  // Melhor ainda: use o hook do Vue Router "beforeRouteEnter" para garantir que sempre atualiza!
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.path === '/markets') {
