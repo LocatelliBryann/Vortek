@@ -37,31 +37,34 @@ const router = createRouter({
       path: "/crypto",
       component: () => import("@/layouts/FullLayoutCrypto.vue"),
       children: [
-        
         {
           path: "/invest",
           name: "invest",
           component: MainViewCrypto,
+          meta: { requiresAuth: true },
         },
         {
           path: "/dev",
           name: "dev",
           component: DevView,
+          meta: { requiresAuth: true },
         },
         {
           path: "/perfil",
           name: "perfil",
           component: PerfilView,
+          meta: { requiresAuth: true },
         },
         {
           path: "/markets",
           name: "Markets",
           component: MarketsViewCrypto,
+          meta: { requiresAuth: true },
         },
       ]
     },
     {
-      path:"/", 
+      path: "/", 
       component: () => import("@/layouts/BlankLayout.vue"),
       children: [
         {
@@ -69,10 +72,30 @@ const router = createRouter({
           name: "login",
           component: LoginView,
         },
-        
       ]
+    },
+    // Redireciona qualquer rota desconhecida para login
+    {
+      path: "/:pathMatch(.*)*",
+      redirect: "/login",
     },
   ],
 })
 
-export default router;
+// Navigation Guard para proteção de rotas
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('access');
+  const isAuthenticated = !!token;
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    // Não autenticado e tentando acessar rota protegida
+    next('/login');
+  } else if (to.path === '/login' && isAuthenticated) {
+    // Já autenticado e tentando acessar login
+    next('/invest');
+  } else {
+    next();
+  }
+});
+
+export default router;  

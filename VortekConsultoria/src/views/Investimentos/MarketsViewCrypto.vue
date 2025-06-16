@@ -66,6 +66,8 @@
 
 <script>
 import axios from 'axios';
+import { watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   data() {
@@ -74,26 +76,21 @@ export default {
       moedas: [],
       moedasOriginais: [],
       search: '',
-      ordenacao: 'default' // opções: 'default', 'asc', 'desc'
+      ordenacao: 'default'
     };
   },
   computed: {
     moedasFiltradas() {
       let lista = [...this.moedas];
-
-      // Filtro por nome (incluindo USDT)
       lista = lista.filter(m =>
         m.symbol.toLowerCase().includes('usdt') &&
         m.symbol.toLowerCase().includes(this.search.toLowerCase())
       );
-
-      // Ordenação
       if (this.ordenacao === 'asc') {
         lista.sort((a, b) => parseFloat(a.priceChangePercent) - parseFloat(b.priceChangePercent));
       } else if (this.ordenacao === 'desc') {
         lista.sort((a, b) => parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent));
       }
-
       return lista;
     }
   },
@@ -128,7 +125,7 @@ export default {
           parseFloat(m.lastPrice) >= 0.000001
         );
         this.moedas = [...filtradas];
-        this.moedasOriginais = [...filtradas]; // Salvar ordem original
+        this.moedasOriginais = [...filtradas];
       } catch (error) {
         console.error('Erro ao buscar dados de mercado:', error);
       }
@@ -136,6 +133,36 @@ export default {
   },
   mounted() {
     this.buscarDadosMercado();
+    // Também roda na primeira montagem, mas não é suficiente sozinho!
+  },
+  setup() {
+    const route = useRoute();
+    // Observe mudanças na rota para sempre buscar ao entrar em /markets
+    watch(
+      () => route.fullPath,
+      (to) => {
+        if (to === '/markets') {
+          // "this" não existe no setup, use window.$vueRef ou eventos globais se precisar,
+          // mas neste caso pode simplesmente disparar no componente usando beforeRouteEnter.
+          // Alternativamente, pode-se usar um event bus.
+          // Como estamos em Options API, o ideal é usar beforeRouteUpdate:
+        }
+      }
+    );
+  },
+  // Melhor ainda: use o hook do Vue Router "beforeRouteEnter" para garantir que sempre atualiza!
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (to.path === '/markets') {
+        vm.buscarDadosMercado();
+      }
+    });
+  },
+  beforeRouteUpdate(to, from, next) {
+    if (to.path === '/markets') {
+      this.buscarDadosMercado();
+    }
+    next();
   }
 };
 </script>

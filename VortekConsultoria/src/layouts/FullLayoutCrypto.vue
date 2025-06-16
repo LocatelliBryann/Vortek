@@ -1,6 +1,12 @@
-<script>
-export default {
+<script setup>
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+
+function fazerLogoff() {
+  localStorage.removeItem('access')
+  localStorage.removeItem('refresh')
+  router.push('/login')
 }
 </script>
 
@@ -10,13 +16,12 @@ export default {
     <div class="tudo">
       <img src="@/assets/img/LogoInvestimentos.png" alt="Logo Consultoria" class="logo" />
       <div class="menu">
-        
         <ul>
           <li>
             <RouterLink to="/invest">Home</RouterLink>
           </li>
           <li class="logoff">
-            <RouterLink to="/login">Logoff</RouterLink>
+            <a href="#" @click.prevent="fazerLogoff">Logoff</a>
           </li>
         </ul>
       </div>
@@ -58,6 +63,11 @@ li {
 a {
   color: rgb(23, 23, 24);
   text-decoration: none;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
 }
 
 a:hover {
@@ -67,5 +77,4 @@ a:hover {
 header {
   background-color: rgb(28, 91, 82);
 }
-
 </style>

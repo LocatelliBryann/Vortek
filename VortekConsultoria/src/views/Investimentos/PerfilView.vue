@@ -3,7 +3,7 @@
     <div class="perfil-box">
       <div class="foto-perfil">
         <label for="fotoInput">
-          <img :src="fotoPreview || defaultFoto" alt="Foto de perfil" class="imagem-usuario" />
+          <img :src="fotoPreview || fotoUsuario || defaultFoto" alt="Foto de perfil" class="imagem-usuario" />
           <input type="file" id="fotoInput" @change="carregarFoto" hidden />
         </label>
       </div>
@@ -15,8 +15,9 @@
         <input type="email" v-model="email" placeholder="E-mail" required />
 
         <div class="campo-senha">
-          <input :type="mostrarSenha1 ? 'text' : 'password'" v-model="senhaAnterior" placeholder="Senha anterior" />
+          <input :type="mostrarSenha1 ? 'text' : 'password'" v-model="senhaAnterior" placeholder="Senha anterior" autocomplete="off" />
           <span @mousedown="mostrarSenha1 = true" @mouseup="mostrarSenha1 = false" @mouseleave="mostrarSenha1 = false">
+            <!-- Eye Icon SVG -->
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
               <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12c-2.761 0-5-2.239-5-5s2.239-5 
                        5-5 5 2.239 5 5-2.239 5-5 5zm0-8c-1.654 0-3 1.346-3 3s1.346 3 
@@ -26,7 +27,7 @@
         </div>
 
         <div class="campo-senha">
-          <input :type="mostrarSenha2 ? 'text' : 'password'" v-model="senha" placeholder="Nova senha" />
+          <input :type="mostrarSenha2 ? 'text' : 'password'" v-model="senha" placeholder="Nova senha" autocomplete="off" />
           <span @mousedown="mostrarSenha2 = true" @mouseup="mostrarSenha2 = false" @mouseleave="mostrarSenha2 = false">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
               <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12c-2.761 0-5-2.239-5-5s2.239-5 
@@ -37,7 +38,7 @@
         </div>
 
         <div class="campo-senha">
-          <input :type="mostrarSenha3 ? 'text' : 'password'" v-model="confirmaSenha" placeholder="Confirmar senha" />
+          <input :type="mostrarSenha3 ? 'text' : 'password'" v-model="confirmaSenha" placeholder="Confirmar senha" autocomplete="off" />
           <span @mousedown="mostrarSenha3 = true" @mouseup="mostrarSenha3 = false" @mouseleave="mostrarSenha3 = false">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
               <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12c-2.761 0-5-2.239-5-5s2.239-5 
@@ -54,23 +55,40 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
+import axios from 'axios'
+import defaultFoto from '@/assets/img/no-photo.png'
 
-const nome = ref('Bryann Lucas Locatelli')
-const email = ref('bryannlocatelli@gmail.com')
+const router = useRouter()
+const nome = ref('')
+const email = ref('')
+const fotoUsuario = ref(null)
+const fotoPreview = ref(null)
 const senhaAnterior = ref('')
 const senha = ref('')
 const confirmaSenha = ref('')
-const fotoPreview = ref(null)
-const router = useRouter()
 
 const mostrarSenha1 = ref(false)
 const mostrarSenha2 = ref(false)
 const mostrarSenha3 = ref(false)
 
-const defaultFoto = '../src/assets/img/no-photo.png'
+// Carrega dados do usuário
+onMounted(async () => {
+  const token = localStorage.getItem('access')
+  if (!token) return
+  try {
+    const { data } = await axios.get('http://localhost:8000/api/user/', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    nome.value = data.nome_completo || ''
+    email.value = data.email || ''
+    fotoUsuario.value = data.foto_perfil ? (data.foto_perfil.startsWith('http') ? data.foto_perfil : `http://localhost:8000${data.foto_perfil}`) : null
+  } catch (error) {
+    Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível carregar os dados do usuário.' })
+  }
+})
 
 function carregarFoto(event) {
   const file = event.target.files[0]
@@ -83,15 +101,72 @@ function carregarFoto(event) {
   }
 }
 
-function salvarAlteracoes() {
-  Swal.fire({
-    icon: 'success',
-    title: 'Sucesso!',
-    text: 'Alterações do usuário concluídas.',
-    confirmButtonColor: '#1b5c51'
-  }).then(() => {
-    router.push('/invest')
-  })
+// Salva alterações
+async function salvarAlteracoes() {
+  const token = localStorage.getItem('access')
+  if (!token) return
+
+  // Validação de e-mail
+  if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+    Swal.fire({ icon: 'warning', title: 'Email inválido', text: 'Informe um e-mail válido.' })
+    return
+  }
+
+  // Troca de senha se os campos forem preenchidos
+  if (senha.value || confirmaSenha.value || senhaAnterior.value) {
+    if (!senhaAnterior.value || !senha.value || !confirmaSenha.value) {
+      Swal.fire({ icon: 'warning', title: 'Campos obrigatórios', text: 'Preencha todos os campos de senha.' })
+      return
+    }
+    if (senha.value !== confirmaSenha.value) {
+      Swal.fire({ icon: 'warning', title: 'Senhas diferentes', text: 'A nova senha e a confirmação devem ser iguais.' })
+      return
+    }
+    try {
+      await axios.post('http://localhost:8000/api/user/change_password/', {
+        old_password: senhaAnterior.value,
+        new_password: senha.value
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      Swal.fire({ icon: 'success', title: 'Senha alterada com sucesso!' })
+      senhaAnterior.value = ''
+      senha.value = ''
+      confirmaSenha.value = ''
+    } catch (error) {
+      Swal.fire({ icon: 'error', title: 'Erro ao alterar senha', text: error.response?.data?.detail || 'Senha anterior incorreta.' })
+      return
+    }
+  }
+
+  // Atualiza nome, email e foto
+  try {
+    const formData = new FormData()
+    formData.append('nome_completo', nome.value)
+    formData.append('email', email.value)
+    // Só envia a foto se mudou
+    if (fotoPreview.value) {
+      const fileInput = document.getElementById('fotoInput')
+      if (fileInput && fileInput.files.length > 0) {
+        formData.append('foto_perfil', fileInput.files[0])
+      }
+    }
+
+    await axios.put('http://localhost:8000/api/user/', formData, {
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+    })
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Sucesso!',
+      text: 'Alterações do usuário concluídas.',
+      confirmButtonColor: '#1b5c51'
+    }).then(() => {
+      router.push('/invest')
+    })
+  } catch (error) {
+    Swal.fire({ icon: 'error', title: 'Erro ao salvar', text: error.response?.data?.detail || 'Erro ao salvar alterações.' })
+  }
 }
 </script>
 
@@ -100,42 +175,45 @@ function salvarAlteracoes() {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #f2f2f2, #e0e0e0);
   position: relative;
 }
 
 .perfil-box {
   background-color: white;
-  padding: 50px;
+  padding: 50px 30px 35px 30px;
   border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.10);
   text-align: center;
-  width: 400px;
+  width: 100%;
+  max-width: 410px;
   position: relative;
   z-index: 1;
 }
 
 .foto-perfil {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
-
 .imagem-usuario {
-  width: 110px;
-  height: 110px;
+  width: 112px;
+  height: 112px;
   object-fit: cover;
   border-radius: 50%;
   border: 3px solid #1b5c51;
   cursor: pointer;
-  transition: 0.3s;
+  transition: 0.2s;
+  background: #ededed;
 }
 .imagem-usuario:hover {
   opacity: 0.85;
+  border-color: #164a40;
 }
 
 h2 {
   color: #1b5c51;
-  margin-bottom: 25px;
+  margin-bottom: 22px;
+  font-size: 1.35rem;
 }
 
 form input {
@@ -145,6 +223,8 @@ form input {
   margin: 10px 0;
   border: 1px solid #ccc;
   border-radius: 5px;
+  font-size: 1rem;
+  background: #fafafa;
 }
 
 .campo-senha {
@@ -154,7 +234,7 @@ form input {
 .campo-senha span {
   position: absolute;
   top: 50%;
-  right: 10px;
+  right: 13px;
   transform: translateY(-50%);
   cursor: pointer;
   background: none;
@@ -166,15 +246,18 @@ form input {
 
 form button {
   width: 100%;
-  padding: 12px;
+  padding: 13px;
   background-color: #1b5c51;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 15px;
+  margin-top: 17px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: background .2s;
 }
-
 form button:hover {
   background-color: #164a40;
 }
