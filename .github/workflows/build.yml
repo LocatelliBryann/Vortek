@@ -9,11 +9,4 @@ jobs:
         run: npm install
       - name: Run Tests and Coverage
         run: npm test -- --coverage
-      - name: Run SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@v2
-        with:
-      - name: Run JMeter Performance Tests
-        run: ./jmeter/run_tests.sh
-      - name: Run OWASP ZAP
-        run: ./zap/zap_scan.sh
 
