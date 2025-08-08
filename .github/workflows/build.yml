@@ -1,4 +1,4 @@
-name: CI Quality Pipeline
+name: Vortek Workflow
 on: [push, pull_request]
 jobs:
   quality:
