@@ -25,7 +25,6 @@ body {
   background-color: #f0f0f0;
 }
 
-/* Centraliza o conteúdo */
 .contato {
   display: flex;
   justify-content: center;
@@ -33,29 +32,25 @@ body {
   height: 100vh;
 }
 
-/* Fundo com bordas arredondadas e transparência */
 .conteudo {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 30px 50px;
+  background-color: rgba(217, 216, 216, 0.9);
+  padding: 100px 200px;
   border-radius: 15px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-/* Logo */
 .logo {
-  width: 150px;
+  width: 350px;
   margin-bottom: 20px;
 }
 
-/* Texto */
 p {
   font-size: 16px;
   color: #555;
   margin-bottom: 10px;
 }
 
-/* Ícones */
 .botoes {
   margin-top: 15px;
 }

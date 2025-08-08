@@ -51,11 +51,12 @@
                 <th>Lucro</th>
                 <th>% Lucro</th>
                 <th>Data do Aporte</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="criptoativos.length === 0">
-                <td colspan="8">Nenhum aporte encontrado</td>
+                <td colspan="9">Nenhum aporte encontrado</td>
               </tr>
               <tr v-for="cripto in criptoativos" :key="cripto.id">
                 <td>{{ cripto.sigla }}</td>
@@ -66,16 +67,25 @@
                 <td>R$ {{ cripto.lucro.toFixed(2) }}</td>
                 <td>{{ cripto.percentual.toFixed(2) }}%</td>
                 <td>{{ formatarData(cripto.dataAporte) }}</td>
+                <td>
+                  <button class="btn-deletar" title="Excluir aporte" @click="deletarAporte(cripto.id)">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
         </section>
 
-        <!-- MODAL DE NOVO APORTE -->
         <div v-if="mostrarModal" class="modal-overlay" @click.self="mostrarModal = false">
           <div class="modal-content">
             <h2>Novo Aporte</h2>
-
             <label>Moeda</label>
             <select v-model="moedaSelecionada" @change="buscarPrecoMoeda">
               <option disabled value="">Selecione uma moeda</option>
@@ -83,19 +93,14 @@
                 {{ moeda.cripto_sigla }} - {{ moeda.Criptoativo }}
               </option>
             </select>
-
             <label>Preço da moeda (R$)</label>
-            <input type="text" v-model="precoMoeda" readonly>
-
+            <input type="number" step="any" v-model="precoMoeda" @input="aoAlterarPrecoMoeda" placeholder="Preço em reais">
             <label>Data do Aporte</label>
             <input type="date" v-model="dataAporte">
-
             <label>Valor Aportado</label>
             <input type="number" v-model="valorAportado" placeholder="R$ 0,00">
-
             <label>Quantidade de moedas</label>
             <input type="number" v-model="quantidadeMoedas" placeholder="0.00000">
-
             <button class="btn-salvar" @click="salvarAporte">Salvar</button>
           </div>
         </div>
@@ -188,9 +193,12 @@ export default {
     async buscarPrecoMoeda() {
       if (!this.moedaSelecionada) return;
       try {
-        // Ajuste: você pode pegar o preço direto da Binance ou criar uma rota proxy no backend para contornar CORS.
         const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${this.moedaSelecionada.cripto_sigla.toUpperCase()}BRL`);
         this.precoMoeda = parseFloat(response.data.price).toFixed(10);
+        this.lastChangedField = "";
+        if (this.valorAportado) {
+          this.valorAportado = this.valorAportado;
+        }
       } catch (error) {
         Swal.fire({
           icon: "error",
@@ -198,6 +206,12 @@ export default {
           text: "Não foi possível obter o preço do ativo em tempo real. Verifique se o ativo existe na Binance com par BRL."
         });
         this.precoMoeda = "";
+      }
+    },
+    aoAlterarPrecoMoeda() {
+      this.lastChangedField = "";
+      if (this.valorAportado) {
+        this.valorAportado = this.valorAportado;
       }
     },
     async salvarAporte() {
@@ -231,17 +245,11 @@ export default {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Proteção caso response.data venha vazio ou sem criptoativo
         const aportes = Array.isArray(response.data) ? response.data.filter(
           aporte => aporte.criptoativo && aporte.criptoativo.cripto_sigla
         ) : [];
 
-        // Puxa cotação do dólar (se quiser usar par USDT, se não, retire essas duas linhas)
-        // const cotacaoResponse = await axios.get("https://economia.awesomeapi.com.br/json/last/USD-BRL");
-        // const cotacaoUSD_BRL = parseFloat(cotacaoResponse.data.USDBRL.ask);
-
         const promises = aportes.map(async (aporte) => {
-          // Pega o preço do ativo em BRL
           let precoAtual = 0;
           try {
             const precoResponse = await axios.get(
@@ -273,19 +281,52 @@ export default {
         });
 
         this.criptoativos = await Promise.all(promises);
-        console.log('Aportes processados:', this.criptoativos);
         this.totalAportes = this.criptoativos.reduce((acc, c) => acc + c.valorAportado, 0);
         this.totalSaldo = this.criptoativos.reduce((acc, c) => acc + c.valorAtual, 0);
         this.totalLucro = this.totalSaldo - this.totalAportes;
         this.totalPercentual = this.totalAportes > 0 ? (this.totalLucro / this.totalAportes) * 100 : 0;
       } catch (error) {
-        // Evita quebrar a tela se der erro
         this.criptoativos = [];
         this.totalAportes = 0;
         this.totalSaldo = 0;
         this.totalLucro = 0;
         this.totalPercentual = 0;
         console.error("Erro ao buscar criptoativos:", error);
+      }
+    },
+    async deletarAporte(id) {
+      const confirma = await Swal.fire({
+        icon: 'warning',
+        title: 'Tem certeza?',
+        text: 'Deseja realmente apagar este aporte?',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, apagar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true,
+        customClass: {
+          confirmButton: 'btn-swal-confirm',
+          cancelButton: 'btn-swal-cancel'
+        }
+      });
+      if (confirma.isConfirmed) {
+        try {
+          const token = localStorage.getItem("access");
+          await axios.delete(`http://localhost:8000/api/aportes/${id}/`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          this.criptoativos = this.criptoativos.filter(a => a.id !== id);
+          this.totalAportes = this.criptoativos.reduce((acc, c) => acc + c.valorAportado, 0);
+          this.totalSaldo = this.criptoativos.reduce((acc, c) => acc + c.valorAtual, 0);
+          this.totalLucro = this.totalSaldo - this.totalAportes;
+          this.totalPercentual = this.totalAportes > 0 ? (this.totalLucro / this.totalAportes) * 100 : 0;
+          Swal.fire({ icon: 'success', title: 'Aporte apagado!' });
+        } catch (err) {
+          Swal.fire({
+            icon: "error",
+            title: "Erro ao apagar aporte",
+            text: err.response?.data?.detail || "Verifique sua conexão ou tente novamente."
+          });
+        }
       }
     },
     formatarData(dataISO) {
@@ -301,7 +342,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {
@@ -472,5 +512,36 @@ nav li {
   color: white;
   font-weight: bold;
   cursor: pointer;
+}
+
+.btn-deletar {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 20px;
+  cursor: pointer;
+  color: #e74c3c;
+  transition: color 0.2s, transform 0.1s;
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-deletar:hover {
+  color: #2980ff;
+  transform: scale(1.12);
+}
+
+.swal2-styled.btn-swal-confirm {
+  background: #e74c3c !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+  font-weight: bold;
+}
+.swal2-styled.btn-swal-cancel {
+  background: #bbb !important;
+  color: #222 !important;
+  border-radius: 8px !important;
 }
 </style>

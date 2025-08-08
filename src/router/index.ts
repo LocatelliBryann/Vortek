@@ -2,6 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/MainView.vue'
 import AboutView from '../views/AboutView.vue'
 import ContateView from '../views/ContactView.vue'
+import LoginView from '../views/Investimentos/LoginView.vue'
+import MainViewCrypto from '../views/Investimentos/MainViewCrypto.vue'
+import DevView from '../views/DevPage.vue'
+import PerfilView from '../views/Investimentos/PerfilView.vue'
+import MarketsViewCrypto from '../views/Investimentos/MarketsViewCrypto.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,7 +16,7 @@ const router = createRouter({
       component: () => import("@/layouts/FullLayoutMain.vue"),
       children: [
         {
-          path: "/",
+          path: "/home",
           name: "home",
           component: HomeView,
         },
@@ -27,7 +32,67 @@ const router = createRouter({
         },
       ]
     },
+    {
+      path: "/crypto",
+      component: () => import("@/layouts/FullLayoutCrypto.vue"),
+      children: [
+        {
+          path: "/invest",
+          name: "invest",
+          component: MainViewCrypto,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "/dev",
+          name: "dev",
+          component: DevView,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "/perfil",
+          name: "perfil",
+          component: PerfilView,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: "/markets",
+          name: "Markets",
+          component: MarketsViewCrypto,
+          meta: { requiresAuth: true },
+        },
+      ]
+    },
+    {
+      path: "/", 
+      component: () => import("@/layouts/BlankLayout.vue"),
+      children: [
+        {
+          path: "/login",
+          name: "login",
+          component: LoginView,
+        },
+      ]
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      redirect: "/login",
+    },
   ],
 })
 
-export default router;
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('access');
+  const isAuthenticated = !!token;
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    // Não autenticado e tentando acessar rota protegida
+    next('/login');
+  } else if (to.path === '/login' && isAuthenticated) {
+    // Já autenticado e tentando acessar login
+    next('/invest');
+  } else {
+    next();
+  }
+});
+
+export default router;  
