@@ -41,10 +41,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="moeda in moedasFiltradas"
-                :key="moeda.symbol"
-              >
+              <tr v-for="moeda in moedasFiltradas" :key="moeda.symbol">
                 <td>{{ moeda.symbol.replace('USDT', '') }}</td>
                 <td>${{ parseFloat(moeda.lastPrice).toFixed(8) }}</td>
                 <td :class="{'positive': parseFloat(moeda.priceChangePercent) >= 0, 'negative': parseFloat(moeda.priceChangePercent) < 0}">
@@ -66,7 +63,7 @@
 
 <script>
 import axios from 'axios';
-import { watch, onMounted } from 'vue';
+import { watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default {
@@ -76,7 +73,8 @@ export default {
       moedas: [],
       moedasOriginais: [],
       search: '',
-      ordenacao: 'default'
+      ordenacao: 'default',
+      intervalId: null   // <--- novo
     };
   },
   computed: {
@@ -116,8 +114,10 @@ export default {
     },
     async buscarDadosMercado() {
       try {
-        const response = await axios.get('https://api.binance.com/api/v3/ticker/24hr');
-        if (!response || !response.data) throw new Error('Resposta inválida da API');
+        const response = await axios.get('http://localhost:8000/api/mercado/');
+        if (!response || !Array.isArray(response.data)) {
+          throw new Error(response.data?.erro || 'Resposta inválida do backend');
+        }
 
         const filtradas = response.data.filter(m =>
           m.symbol.endsWith('USDT') &&
@@ -128,11 +128,21 @@ export default {
         this.moedasOriginais = [...filtradas];
       } catch (error) {
         console.error('Erro ao buscar dados de mercado:', error);
+        this.moedas = [];
+        this.moedasOriginais = [];
       }
     }
   },
   mounted() {
     this.buscarDadosMercado();
+
+    // Atualiza automaticamente a cada 5 segundos
+    this.intervalId = setInterval(() => {
+      this.buscarDadosMercado();
+    }, 2000);
+  },
+  beforeUnmount() {
+    if (this.intervalId) clearInterval(this.intervalId);
   },
   setup() {
     const route = useRoute();

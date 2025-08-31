@@ -133,6 +133,7 @@ export default {
       totalSaldo: 0,
       totalLucro: 0,
       totalPercentual: 0,
+      intervalId: null   // 🔄 novo: armazena o timer
     };
   },
   watch: {
@@ -197,7 +198,6 @@ export default {
         return;
       }
       try {
-        // 🔄 Agora consulta o backend e não a Binance direta
         const response = await axios.get(`http://localhost:8000/api/preco/${this.moedaSelecionada.cripto_sigla}/`);
         this.precoMoeda = parseFloat(response.data.preco).toFixed(10);
         this.lastChangedField = "";
@@ -341,7 +341,14 @@ export default {
     await this.buscarUsuario();
     await this.buscarCriptoativosBanco();
     await this.buscarCriptoativos();
+
+    this.intervalId = setInterval(() => {
+      this.buscarCriptoativos();
+    }, 2000);
   },
+  beforeUnmount() {
+    if (this.intervalId) clearInterval(this.intervalId);
+  }
 };
 </script>
 
