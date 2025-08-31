@@ -87,8 +87,10 @@
           <div class="modal-content">
             <h2>Novo Aporte</h2>
             <label>Moeda</label>
-            <select v-model="moedaSelecionada" @change="buscarPrecoMoeda">
-              <option disabled value="">Selecione uma moeda</option>
+            <select v-model="moedaSelecionada" @change="buscarPrecoMoeda" :disabled="criptoativosBanco.length === 0">
+              <option disabled value="">
+                {{ criptoativosBanco.length === 0 ? 'Carregando moedas...' : 'Selecione uma moeda' }}
+              </option>
               <option v-for="moeda in criptoativosBanco" :key="moeda.id" :value="moeda">
                 {{ moeda.cripto_sigla }} - {{ moeda.Criptoativo }}
               </option>
@@ -191,19 +193,19 @@ export default {
       }
     },
     async buscarPrecoMoeda() {
-      if (!this.moedaSelecionada) return;
+      if (!this.moedaSelecionada || !this.moedaSelecionada.cripto_sigla) {
+        return;
+      }
       try {
-        const response = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${this.moedaSelecionada.cripto_sigla.toUpperCase()}BRL`);
-        this.precoMoeda = parseFloat(response.data.price).toFixed(10);
+        // 🔄 Agora consulta o backend e não a Binance direta
+        const response = await axios.get(`http://localhost:8000/api/preco/${this.moedaSelecionada.cripto_sigla}/`);
+        this.precoMoeda = parseFloat(response.data.preco).toFixed(10);
         this.lastChangedField = "";
-        if (this.valorAportado) {
-          this.valorAportado = this.valorAportado;
-        }
       } catch (error) {
         Swal.fire({
           icon: "error",
           title: "Preço não encontrado",
-          text: "Não foi possível obter o preço do ativo em tempo real. Verifique se o ativo existe na Binance com par BRL."
+          text: "Não foi possível obter o preço do ativo em tempo real. Verifique se o ativo existe com par BRL."
         });
         this.precoMoeda = "";
       }
@@ -253,9 +255,9 @@ export default {
           let precoAtual = 0;
           try {
             const precoResponse = await axios.get(
-              `https://api.binance.com/api/v3/ticker/price?symbol=${aporte.criptoativo.cripto_sigla.toUpperCase()}BRL`
+              `http://localhost:8000/api/preco/${aporte.criptoativo.cripto_sigla}/`
             );
-            precoAtual = parseFloat(precoResponse.data.price);
+            precoAtual = parseFloat(precoResponse.data.preco);
           } catch {
             precoAtual = parseFloat(aporte.criptoativo.valor);
           }
