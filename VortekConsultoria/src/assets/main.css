@@ -1,47 +1,81 @@
-/* @import "./base.css"; */
-
+/* Tipos */
 @import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
+/* ------------------ Reset suave ------------------ */
 * {
   margin: 0;
   padding: 0;
   border: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
 }
 
-/* body {
-  background: #f7f7f7;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-} */
+html, body {
+  height: 100%;
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-/* header {
-  height: 80px;
-  background:orangered;
-} */
+/* Cor base neutra: páginas escuras devem aplicar uma classe própria (ex.: .bg-page) */
+body {
+  background: #ffffff;
+  color: #111111;
+}
 
-/* .logo img {
-  margin-left: 3%;
-  height: 80px;
-  margin-bottom: 30px;
-  cursor: pointer;
-} */
+/* ------------------ Paleta (pretos + laranjas) ------------------ */
+:root {
+  --bg-dark:   #0a0a0a;
+  --bg-darker: #050505;
+  --text:      #ffffff;
+  --muted:     rgba(255,255,255,.82);
+  --accent:    #ff7a1a;
+  --accent-2:  #ff9a3c;
+}
+
+/* ------------------ Utilitários globais seguros ------------------ */
+/* Use estas classes em páginas de fundo escuro (ex.: sua MainView) */
+.bg-dark     { background: var(--bg-dark) !important; color: var(--text) !important; }
+.bg-darker   { background: var(--bg-darker) !important; color: var(--text) !important; }
+.text-light  { color: var(--text) !important; }
+.text-muted  { color: var(--muted) !important; }
+.text-accent { color: var(--accent) !important; }
+
+/* Botão laranja genérico (não conflita com v-btn) */
+.btn-primary-basic {
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #111 !important;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+/* ------------------ Links (regras seguras) ------------------ */
+/* Não usar a:-webkit-any-link (quebrava o Vuetify).  */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: none;
+}
+
+/* ------------------ Menu do cabeçalho (escopado) ------------------ */
+/* Estes seletores só afetam o seu header tradicional */
+.menu {
+  margin-right: 20px;
+  margin-top: 30px;
+  float: right;
+}
+
+.menu ul {
+  list-style: none;
+}
 
 .menu ul li {
   display: inline-block;
   color: #ffffff;
   margin-left: 15px;
   height: 30px;
-}
-
-.menu ul li:hover {
-  border-bottom: 3px solid #eef;
-}
-
-.menu ul li a:hover {
-  color: #eef;
 }
 
 .menu ul li a {
@@ -52,18 +86,18 @@
   font-family: "Poppins", sans-serif;
 }
 
-.menu {
-  margin-right: 20px;
-  margin-top: 30px;
-  float: right;
+.menu ul li:hover {
+  border-bottom: 3px solid #eef;
 }
 
-a:-webkit-any-link {
-  color: #8a93e4;
-  cursor: pointer;
-  text-decoration: none;
+.menu ul li a:hover {
+  color: #eef;
 }
 
-a:-webkit-any-link:hover {
-  color: #484d75;
+/* ------------------ Helpers de acessibilidade ------------------ */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden; clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap; border: 0; padding: 0; margin: -1px;
 }

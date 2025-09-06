@@ -5,11 +5,11 @@
       <aside class="sidebar" v-show="menuOpen" ref="sidebar">
         <nav>
           <ul>
-            <li><router-link to="/markets">Mercados</router-link></li>
-            <li><router-link to="/invest">Portfólio</router-link></li>
-            <li><router-link to="/dev">Simular</router-link></li>
-            <li><router-link to="/dev">P2P</router-link></li>
-            <li><router-link to="/perfil">Perfil</router-link></li>
+            <li><router-link to="/crypto/markets">Mercados</router-link></li>
+            <li><router-link to="/crypto/invest">Portfólio</router-link></li>
+            <li><router-link to="/crypto/dev">Simular</router-link></li>
+            <li><router-link to="/crypto/dev">P2P</router-link></li>
+            <li><router-link to="/crypto/perfil">Perfil</router-link></li>
           </ul>
         </nav>
       </aside>
@@ -133,7 +133,11 @@ export default {
       totalSaldo: 0,
       totalLucro: 0,
       totalPercentual: 0,
-      intervalId: null   // 🔄 novo: armazena o timer
+      intervalId: null,
+      apiUser: "https://vtk-test-api.d2tecnologia.net.br/api/user/",
+      apiCriptoativos: "https://vtk-test-api.d2tecnologia.net.br/api/criptoativos/",
+      apiAportes: "https://vtk-test-api.d2tecnologia.net.br/api/aportes/",
+      apiPrecos: "https://vtk-test-api.d2tecnologia.net.br/api/preco/",
     };
   },
   watch: {
@@ -176,7 +180,7 @@ export default {
       const token = localStorage.getItem("access");
       if (!token) return;
       try {
-        const response = await axios.get("http://localhost:8000/api/user/", {
+        const response = await axios.get(this.apiUser, {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.nome_completo = response.data.nome_completo;
@@ -186,7 +190,7 @@ export default {
     },
     async buscarCriptoativosBanco() {
       try {
-        const response = await axios.get("http://localhost:8000/api/criptoativos/");
+        const response = await axios.get(this.apiCriptoativos);
         this.criptoativosBanco = response.data || [];
       } catch (error) {
         console.error("Erro ao buscar ativos do banco:", error);
@@ -198,7 +202,7 @@ export default {
         return;
       }
       try {
-        const response = await axios.get(`http://localhost:8000/api/preco/${this.moedaSelecionada.cripto_sigla}/`);
+        const response = await axios.get(`https://vtk-test-api.d2tecnologia.net.br/api/preco/${this.moedaSelecionada.cripto_sigla}/`);
         this.precoMoeda = parseFloat(response.data.preco).toFixed(10);
         this.lastChangedField = "";
       } catch (error) {
@@ -226,7 +230,7 @@ export default {
           quantidade: parseFloat(this.quantidadeMoedas),
           data_aporte: this.dataAporte,
         };
-        await axios.post("http://localhost:8000/api/aportes/", payload, {
+        await axios.post(this.apiAportes, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         Swal.fire({ icon: "success", title: "Aporte salvo!", timer: 2000 });
@@ -243,7 +247,7 @@ export default {
     async buscarCriptoativos() {
       try {
         const token = localStorage.getItem("access");
-        const response = await axios.get("http://localhost:8000/api/aportes/", {
+        const response = await axios.get(this.apiAportes, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -255,7 +259,7 @@ export default {
           let precoAtual = 0;
           try {
             const precoResponse = await axios.get(
-              `http://localhost:8000/api/preco/${aporte.criptoativo.cripto_sigla}/`
+              `https://vtk-test-api.d2tecnologia.net.br/api/preco/${aporte.criptoativo.cripto_sigla}/`
             );
             precoAtual = parseFloat(precoResponse.data.preco);
           } catch {
@@ -313,7 +317,7 @@ export default {
       if (confirma.isConfirmed) {
         try {
           const token = localStorage.getItem("access");
-          await axios.delete(`http://localhost:8000/api/aportes/${id}/`, {
+          await axios.delete(`https://vtk-test-api.d2tecnologia.net.br/api/aportes/${id}/`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           this.criptoativos = this.criptoativos.filter(a => a.id !== id);

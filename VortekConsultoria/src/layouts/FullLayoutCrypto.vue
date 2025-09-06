@@ -6,7 +6,7 @@ const router = useRouter()
 function fazerLogoff() {
   localStorage.removeItem('access')
   localStorage.removeItem('refresh')
-  router.push('/login')
+  router.push('/auth/login')
 }
 </script>
 
@@ -18,7 +18,7 @@ function fazerLogoff() {
       <div class="menu">
         <ul>
           <li>
-            <RouterLink to="/invest">Home</RouterLink>
+            <RouterLink to="/crypto/invest">Home</RouterLink>
           </li>
           <li class="logoff">
             <a href="#" @click.prevent="fazerLogoff">Logoff</a>

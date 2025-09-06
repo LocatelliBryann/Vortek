@@ -74,7 +74,7 @@ export default {
       moedasOriginais: [],
       search: '',
       ordenacao: 'default',
-      intervalId: null   // <--- novo
+      intervalId: null 
     };
   },
   computed: {
@@ -114,7 +114,7 @@ export default {
     },
     async buscarDadosMercado() {
       try {
-        const response = await axios.get('http://localhost:8000/api/mercado/');
+        const response = await axios.get('https://vtk-test-api.d2tecnologia.net.br/api/mercado/');
         if (!response || !Array.isArray(response.data)) {
           throw new Error(response.data?.erro || 'Resposta inválida do backend');
         }
@@ -136,7 +136,7 @@ export default {
   mounted() {
     this.buscarDadosMercado();
 
-    // Atualiza automaticamente a cada 5 segundos
+    // Atualiza automaticamente a cada 2 segundos
     this.intervalId = setInterval(() => {
       this.buscarDadosMercado();
     }, 2000);
