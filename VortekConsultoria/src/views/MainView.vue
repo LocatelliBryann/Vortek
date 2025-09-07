@@ -49,7 +49,7 @@
             </v-card-title>
 
             <v-card-text class="card__text">
-              Homologação e emissão de certificados digitais <strong>A1</strong> e
+              Homologação e emissão de certificados digitais <strong>A1</strong>, <strong>A2</strong> e
               <strong>A3</strong> para <strong>pessoa física</strong> e
               <strong>jurídica</strong>. Prontos para uso em sistemas fiscais,
               assinatura eletrônica e integrações.
