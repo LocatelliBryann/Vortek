@@ -403,6 +403,7 @@ nav ul {
   list-style: none;
   padding: 0;
 }
+
 nav li {
   padding: 10px 0;
   cursor: pointer;

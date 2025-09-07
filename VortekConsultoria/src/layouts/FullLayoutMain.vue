@@ -17,7 +17,7 @@ export default { name: 'FullLayoutMain' }
             <li><RouterLink to="/about">Sobre Nós</RouterLink></li>
             <li><RouterLink to="/contate">Contato</RouterLink></li>
             <li><RouterLink to="/producoes" class="producoes-link">Produções</RouterLink></li>
-            <li><RouterLink to="/login" class="investimentos-link">Investimentos</RouterLink></li>
+            <li><RouterLink to="/auth/login" class="investimentos-link">Investimentos</RouterLink></li>
           </ul>
         </nav>
       </div>
