@@ -176,4 +176,5 @@ export default {
 .mb-6 {
   margin-bottom: 24px;
 }
+
 </style>

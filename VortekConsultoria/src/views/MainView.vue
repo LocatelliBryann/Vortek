@@ -31,7 +31,6 @@
           </v-row>
         </v-container>
       </section>
-
       <!-- SERVIÇOS -->
       <section class="section">
         <v-container>
@@ -64,7 +63,6 @@
             </v-card-actions>
           </v-card>
 
-          <!-- CARD FORMATAÇÃO -->
           <v-card class="card mb-6" elevation="4">
             <v-card-title class="card__title">
               <v-icon class="mr-2">mdi-laptop</v-icon>

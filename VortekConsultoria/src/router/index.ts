@@ -45,7 +45,6 @@ const router = createRouter({
     { path: '/login', redirect: '/auth/login' },
     { path: '/invest', redirect: '/crypto/invest' },
 
-    // fallback
     { path: '/:pathMatch(.*)*', redirect: '/auth/login' },
   ],
 })
