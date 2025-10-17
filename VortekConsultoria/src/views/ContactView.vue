@@ -87,7 +87,6 @@
                   </a>
                 </div>
               </v-card-text>
-
               <v-card-actions>
                 <RouterLink to="/about">
                   <v-btn variant="text" class="btn-ghost" append-icon="mdi-arrow-right">
