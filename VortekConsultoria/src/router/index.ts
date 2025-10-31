@@ -7,6 +7,7 @@ import MainViewCrypto from '@/views/Investimentos/MainViewCrypto.vue'
 import DevView from '@/views/DevPage.vue'
 import PerfilView from '@/views/Investimentos/PerfilView.vue'
 import MarketsViewCrypto from '@/views/Investimentos/MarketsViewCrypto.vue'
+import DevProducoesView from '@/views/Producoes/DevPageProducoes.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +40,13 @@ const router = createRouter({
       path: '/auth',
       component: () => import('@/layouts/BlankLayout.vue'),
       children: [{ path: 'login', name: 'login', component: LoginView }],
+    },
+
+    // DEV PAGE PRODUCOES
+    {
+      path: '/',
+      component: () => import('@/layouts/BlankLayout.vue'),
+      children: [{ path: 'devproducoes', name: 'devproducoes', component: DevProducoesView }],
     },
 
     // atalhos
