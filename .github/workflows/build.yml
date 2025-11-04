@@ -1,10 +1,128 @@
 name: Vortek Workflow
-on: [push, pull_request]
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
 jobs:
-  quality:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Install dependencies
-        run: npm install
+      - name: 1. Checkout (Pegar o código)
+        uses: actions/checkout@v4
 
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 3. Install Dependencies (npm ci)
+        run: npm ci
+
+      - name: 4. Build Project
+        run: npm run build --if-present
+
+      - name: 5. Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-files
+          path: dist/
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] 
+
+    steps:
+      - name: 1. Checkout (Pegar o código)
+        uses: actions/checkout@v4
+
+      - name: 2. Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: 3. Install Dependencies
+        run: npm ci
+
+      - name: 4. Run Tests & Generate Coverage
+        run: npm test -- --coverage 
+
+      - name: 5. Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-node-${{ matrix.node-version }}
+          path: coverage/
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: 1. Checkout (Pegar o código)
+        uses: actions/checkout@v4
+
+      - name: 2. Initialize CodeQL (SAST da GitHub)
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+
+      - name: 3. Autobuild (CodeQL analisa o build)
+        uses: github/codeql-action/autobuild@v3
+
+      - name: 4. Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [test, security-scan] 
+
+    environment:
+      name: staging
+      url: https://staging.seu-projeto.com 
+
+    steps:
+      - name: 1. Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-files
+
+      - name: 2. "Deploying" to Staging
+        run: |
+          echo "Deploying to Staging Environment..."
+          ls -R
+          echo "Staging Deploy complete."
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging 
+    
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+      url: https://www.seu-projeto.com
+
+    steps:
+      - name: 1. Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-files
+
+      - name: 2. "Deploying" to Production
+        run: |
+          echo "WARNING: DEPLOYING TO PRODUCTION"
+          ls -R
+          echo "Production Deploy complete."
