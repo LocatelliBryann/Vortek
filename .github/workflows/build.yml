@@ -10,59 +10,59 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  construir:
     runs-on: ubuntu-latest
     steps:
-      - name: 1. Checkout (Pegar o código)
+      - name: 1. Checkout (Baixar o código)
         uses: actions/checkout@v4
 
-      - name: 2. Setup Node.js
+      - name: 2. Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: 3. Install Dependencies (npm ci)
+      - name: 3. Instalar Dependências (npm ci)
         run: npm ci
 
-      - name: 4. Build Project
+      - name: 4. Construir Projeto
         run: npm run build --if-present
 
-      - name: 5. Upload Build Artifact
+      - name: 5. Enviar Artefato da Build
         uses: actions/upload-artifact@v4
         with:
-          name: dist-files
+          name: arquivos-dist
           path: dist/
 
-  test:
+  testar:
     runs-on: ubuntu-latest
-    needs: build
+    needs: construir
     
     strategy:
       matrix:
         node-version: [18.x, 20.x] 
 
     steps:
-      - name: 1. Checkout (Pegar o código)
+      - name: 1. Checkout (Baixar o código)
         uses: actions/checkout@v4
 
-      - name: 2. Setup Node.js ${{ matrix.node-version }}
+      - name: 2. Configurar Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: 3. Install Dependencies
+      - name: 3. Instalar Dependências
         run: npm ci
 
-      - name: 4. Run Tests & Generate Coverage
+      - name: 4. Rodar Testes & Gerar Cobertura
         run: npm test -- --coverage 
 
-      - name: 5. Upload Coverage Report
+      - name: 5. Enviar Relatório de Cobertura
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report-node-${{ matrix.node-version }}
+          name: relatorio-cobertura-node-${{ matrix.node-version }}
           path: coverage/
 
-  security-scan:
+  analise-seguranca:
     runs-on: ubuntu-latest
     
     permissions:
@@ -71,58 +71,58 @@ jobs:
       security-events: write
 
     steps:
-      - name: 1. Checkout (Pegar o código)
+      - name: 1. Checkout (Baixar o código)
         uses: actions/checkout@v4
 
-      - name: 2. Initialize CodeQL (SAST da GitHub)
+      - name: 2. Iniciar CodeQL (SAST do GitHub)
         uses: github/codeql-action/init@v3
         with:
           languages: javascript
 
-      - name: 3. Autobuild (CodeQL analisa o build)
+      - name: 3. Autobuild (CodeQL analisa a build)
         uses: github/codeql-action/autobuild@v3
 
-      - name: 4. Perform CodeQL Analysis
+      - name: 4. Executar Análise CodeQL
         uses: github/codeql-action/analyze@v3
 
-  deploy-staging:
+  deploy-homologacao:
     runs-on: ubuntu-latest
-    needs: [test, security-scan] 
+    needs: [testar, analise-seguranca] 
 
     environment:
-      name: staging
+      name: homologacao
       url: https://staging.seu-projeto.com 
 
     steps:
-      - name: 1. Download Build Artifact
+      - name: 1. Baixar Artefato da Build
         uses: actions/download-artifact@v4
         with:
-          name: dist-files
+          name: arquivos-dist
 
-      - name: 2. "Deploying" to Staging
+      - name: 2. "Implantando" em Homologação
         run: |
-          echo "Deploying to Staging Environment..."
+          echo "Implantando no Ambiente de Homologação..."
           ls -R
-          echo "Staging Deploy complete."
+          echo "Deploy em Homologação completo."
 
-  deploy-production:
+  deploy-producao:
     runs-on: ubuntu-latest
-    needs: deploy-staging 
+    needs: deploy-homologacao 
     
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     environment:
-      name: production
+      name: producao
       url: https://www.seu-projeto.com
 
     steps:
-      - name: 1. Download Build Artifact
+      - name: 1. Baixar Artefato da Build
         uses: actions/download-artifact@v4
         with:
-          name: dist-files
+          name: arquivos-dist
 
-      - name: 2. "Deploying" to Production
+      - name: 2. "Implantando" em Produção
         run: |
-          echo "WARNING: DEPLOYING TO PRODUCTION"
+          echo "AVISO: IMPLANTANDO EM PRODUÇÃO"
           ls -R
-          echo "Production Deploy complete."
+          echo "Deploy em Produção completo."
