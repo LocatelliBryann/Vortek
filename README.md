@@ -131,6 +131,8 @@ python manage.py runserver
 ```bash
 npm run dev
 ```
+# Imagens das principais telas do App
 
+[![fomIzpp.md.png](https://iili.io/fomIzpp.md.png)](https://freeimage.host/i/fomIzpp)
 
 
