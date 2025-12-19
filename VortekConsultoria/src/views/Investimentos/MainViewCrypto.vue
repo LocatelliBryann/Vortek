@@ -134,10 +134,10 @@ export default {
       totalLucro: 0,
       totalPercentual: 0,
       intervalId: null,
-      apiUser: "http://127.0.0.1:8000/api/user/",
-      apiCriptoativos: "http://127.0.0.1:8000/api/criptoativos/",
-      apiAportes: "http://127.0.0.1:8000/api/aportes/",
-      apiPrecos: "http://127.0.0.1:8000/api/preco/",
+      apiUser: "http://api.vortek.inf.br/api/user/",
+      apiCriptoativos: "http://api.vortek.inf.br/api/criptoativos/",
+      apiAportes: "http://api.vortek.inf.br/api/aportes/",
+      apiPrecos: "http://api.vortek.inf.br/api/preco/",
     };
   },
   watch: {
@@ -202,7 +202,7 @@ export default {
         return;
       }
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/preco/${this.moedaSelecionada.cripto_sigla}/`);
+        const response = await axios.get(`http://api.vortek.inf.br/api/preco/${this.moedaSelecionada.cripto_sigla}/`);
         this.precoMoeda = parseFloat(response.data.preco).toFixed(10);
         this.lastChangedField = "";
       } catch (error) {
@@ -259,7 +259,7 @@ export default {
           let precoAtual = 0;
           try {
             const precoResponse = await axios.get(
-              `http://127.0.0.1:8000/api/preco/${aporte.criptoativo.cripto_sigla}/`
+              `http://api.vortek.inf.br/api/preco/${aporte.criptoativo.cripto_sigla}/`
             );
             precoAtual = parseFloat(precoResponse.data.preco);
           } catch {
@@ -317,7 +317,7 @@ export default {
       if (confirma.isConfirmed) {
         try {
           const token = localStorage.getItem("access");
-          await axios.delete(`http://127.0.0.1:8000/api/aportes/${id}/`, {
+          await axios.delete(`http://api.vortek.inf.br/api/aportes/${id}/`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           this.criptoativos = this.criptoativos.filter(a => a.id !== id);

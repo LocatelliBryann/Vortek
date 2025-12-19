@@ -77,12 +77,12 @@ onMounted(async () => {
   const token = localStorage.getItem('access')
   if (!token) return
   try {
-    const { data } = await axios.get('http://127.0.0.1:8000/api/user/', {
+    const { data } = await axios.get('http://api.vortek.inf.br/api/user/', {
       headers: { Authorization: `Bearer ${token}` }
     })
     nome.value = data.nome_completo || ''
     email.value = data.email || ''
-    fotoUsuario.value = data.foto_perfil ? (data.foto_perfil.startsWith('http') ? data.foto_perfil : `http://127.0.0.1:8000${data.foto_perfil}`) : null
+    fotoUsuario.value = data.foto_perfil ? (data.foto_perfil.startsWith('http') ? data.foto_perfil : `http://api.vortek.inf.br${data.foto_perfil}`) : null
   } catch (error) {
     Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível carregar os dados do usuário.' })
   }
@@ -119,7 +119,7 @@ async function salvarAlteracoes() {
       return
     }
     try {
-      await axios.post('http://127.0.0.1:8000/api/user/change_password/', {
+      await axios.post('http://api.vortek.inf.br/api/user/change_password/', {
         old_password: senhaAnterior.value,
         new_password: senha.value
       }, {
@@ -146,7 +146,7 @@ async function salvarAlteracoes() {
       }
     }
 
-    await axios.put('http://127.0.0.1:8000/api/user/', formData, {
+    await axios.put('http://api.vortek.inf.br/api/user/', formData, {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
     })
 

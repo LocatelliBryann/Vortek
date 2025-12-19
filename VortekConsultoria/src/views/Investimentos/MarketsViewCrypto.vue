@@ -114,7 +114,7 @@ export default {
     },
     async buscarDadosMercado() {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/mercado/');
+        const response = await axios.get('http://api.vortek.inf.br/api/mercado/');
         if (!response || !Array.isArray(response.data)) {
           throw new Error(response.data?.erro || 'Resposta inválida do backend');
         }

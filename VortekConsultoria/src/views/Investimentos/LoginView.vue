@@ -30,7 +30,7 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await axios.post('http://127.0.0.1:8000/token/', {
+        const response = await axios.post('http://api.vortek.inf.br/token/', {
           email: this.email,
           password: this.senha
         });
@@ -67,7 +67,7 @@ export default {
       }
 
       try {
-        await axios.post('http://127.0.0.1:8000/password_reset/', {
+        await axios.post('http://api.vortek.inf.br/password_reset/', {
           email: this.email
         });
 
@@ -104,7 +104,7 @@ export default {
       if (!senha) return;
 
       try {
-        await axios.post(`http://127.0.0.1:8000/reset/${uid}/${token}/`, {
+        await axios.post(`http://api.vortek.inf.br/reset/${uid}/${token}/`, {
           nova_senha: senha
         });
 
