@@ -39,7 +39,7 @@ export default { name: 'FullLayoutMain' }
 }
 
 .tudo{ display:flex; align-items:center; justify-content:space-between; max-width:1200px; margin:0 auto; padding:10px 16px; }
-.logo{ width: 170px; }
+.logo{ width: 350px; }
 .logo-link{ display:flex; align-items:center; }
 
 .menu ul{ display:flex; gap:18px; list-style:none; margin:0; padding:0; }
