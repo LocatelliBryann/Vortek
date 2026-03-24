@@ -36,7 +36,7 @@ describe('LoginView.vue', () => {
     await wrapper.find('input[type="password"]').setValue('123456')
     await wrapper.find('form').trigger('submit.prevent')
 
-    expect(axios.post).toHaveBeenCalledWith('http://api.vortek.inf.br/token/', {
+    expect(axios.post).toHaveBeenCalledWith('https://api.vortek.inf.br/token/', {
       email: 'teste@teste.com',
       password: '123456'
     })

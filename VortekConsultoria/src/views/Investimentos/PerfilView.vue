@@ -17,7 +17,7 @@
         <div class="campo-senha">
           <input :type="mostrarSenha1 ? 'text' : 'password'" v-model="senhaAnterior" placeholder="Senha anterior" autocomplete="off" />
           <span @mousedown="mostrarSenha1 = true" @mouseup="mostrarSenha1 = false" @mouseleave="mostrarSenha1 = false">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
+            <svg xmlns="https://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
               <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12c-2.761 0-5-2.239-5-5s2.239-5 
                        5-5 5 2.239 5 5-2.239 5-5 5zm0-8c-1.654 0-3 1.346-3 3s1.346 3 
                        3 3 3-1.346 3-3-1.346-3-3-3z"/>
@@ -28,7 +28,7 @@
         <div class="campo-senha">
           <input :type="mostrarSenha2 ? 'text' : 'password'" v-model="senha" placeholder="Nova senha" autocomplete="off" />
           <span @mousedown="mostrarSenha2 = true" @mouseup="mostrarSenha2 = false" @mouseleave="mostrarSenha2 = false">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
+            <svg xmlns="https://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
               <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12c-2.761 0-5-2.239-5-5s2.239-5 
                        5-5 5 2.239 5 5-2.239 5-5 5zm0-8c-1.654 0-3 1.346-3 3s1.346 3 
                        3 3 3-1.346 3-3-1.346-3-3-3z"/>
@@ -39,7 +39,7 @@
         <div class="campo-senha">
           <input :type="mostrarSenha3 ? 'text' : 'password'" v-model="confirmaSenha" placeholder="Confirmar senha" autocomplete="off" />
           <span @mousedown="mostrarSenha3 = true" @mouseup="mostrarSenha3 = false" @mouseleave="mostrarSenha3 = false">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
+            <svg xmlns="https://www.w3.org/2000/svg" width="20" height="20" fill="#333" viewBox="0 0 24 24">
               <path d="M12 5c-7.633 0-12 7-12 7s4.367 7 12 7 12-7 12-7-4.367-7-12-7zm0 12c-2.761 0-5-2.239-5-5s2.239-5 
                        5-5 5 2.239 5 5-2.239 5-5 5zm0-8c-1.654 0-3 1.346-3 3s1.346 3 
                        3 3 3-1.346 3-3-1.346-3-3-3z"/>
@@ -77,12 +77,12 @@ onMounted(async () => {
   const token = localStorage.getItem('access')
   if (!token) return
   try {
-    const { data } = await axios.get('http://api.vortek.inf.br/api/user/', {
+    const { data } = await axios.get('https://api.vortek.inf.br/api/user/', {
       headers: { Authorization: `Bearer ${token}` }
     })
     nome.value = data.nome_completo || ''
     email.value = data.email || ''
-    fotoUsuario.value = data.foto_perfil ? (data.foto_perfil.startsWith('http') ? data.foto_perfil : `http://api.vortek.inf.br${data.foto_perfil}`) : null
+    fotoUsuario.value = data.foto_perfil ? (data.foto_perfil.startsWith('https') ? data.foto_perfil : `https://api.vortek.inf.br${data.foto_perfil}`) : null
   } catch (error) {
     Swal.fire({ icon: 'error', title: 'Erro', text: 'Não foi possível carregar os dados do usuário.' })
   }
@@ -119,7 +119,7 @@ async function salvarAlteracoes() {
       return
     }
     try {
-      await axios.post('http://api.vortek.inf.br/api/user/change_password/', {
+      await axios.post('https://api.vortek.inf.br/api/user/change_password/', {
         old_password: senhaAnterior.value,
         new_password: senha.value
       }, {
@@ -146,7 +146,7 @@ async function salvarAlteracoes() {
       }
     }
 
-    await axios.put('http://api.vortek.inf.br/api/user/', formData, {
+    await axios.put('https://api.vortek.inf.br/api/user/', formData, {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
     })
 

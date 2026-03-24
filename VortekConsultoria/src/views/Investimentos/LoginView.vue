@@ -1,7 +1,7 @@
 <template>
   <div class="login-container" :class="{ 'fade-out': isTransitioning }">
     <div class="login-box">
-      <img src="@/assets/img/LogoInvestimentos.png" alt="Logo Vortek" class="logo" />
+      <!-- <img src="@/assets/img/LogoInvestimentos.png" alt="Logo Vortek" class="logo" /> -->
       <h2>Login</h2>
       <form @submit.prevent="login">
         <input type="email" v-model="email" placeholder="Email" required />
@@ -30,7 +30,7 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await axios.post('http://api.vortek.inf.br/token/', {
+        const response = await axios.post('https://api.vortek.inf.br/token/', {
           email: this.email,
           password: this.senha
         });
@@ -67,7 +67,7 @@ export default {
       }
 
       try {
-        await axios.post('http://api.vortek.inf.br/password_reset/', {
+        await axios.post('https://api.vortek.inf.br/password_reset/', {
           email: this.email
         });
 
@@ -104,7 +104,7 @@ export default {
       if (!senha) return;
 
       try {
-        await axios.post(`http://api.vortek.inf.br/reset/${uid}/${token}/`, {
+        await axios.post(`https://api.vortek.inf.br/reset/${uid}/${token}/`, {
           nova_senha: senha
         });
 
