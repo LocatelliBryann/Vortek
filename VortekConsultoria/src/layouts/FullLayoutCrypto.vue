@@ -14,7 +14,7 @@ function fazerLogoff() {
   <div class="cabecalho"></div>
   <header>
     <div class="tudo">
-      <img src="@/assets/img/LogoInvestimentos.png" alt="Logo Consultoria" class="logo" />
+      <!-- <img src="@/assets/img/LogoInvestimentos.png" alt="Logo Consultoria" class="logo" /> -->
       <div class="menu">
         <ul>
           <li>
